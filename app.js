@@ -50,9 +50,9 @@ const financingConfig = {
    Drop the files into /videos with these names (see README).
    Posters are optional — without them the first frame is used. */
 const videoConfig = {
-  hero:    { src: 'videos/hero-15sec-open.mp4',  poster: 'img/hero-15sec-open-poster.jpg'  }, // C1_15sec-open - טוב.mp4
-  pays:    { src: 'videos/pays-for-itself.mp4',  poster: 'img/pays-for-itself-poster.jpg'  }, // A3_pays-for-itself.mp4
-  million: { src: 'videos/almost-a-million.mp4', poster: 'img/almost-a-million-poster.jpg' }  // B4_almost-a-million.mp4
+  hero:    { src: 'videos/web/hero-15sec-open.mp4',  poster: 'img/hero-15sec-open-poster.jpg'  }, // C1_15sec-open - טוב.mp4
+  pays:    { src: 'videos/web/pays-for-itself.mp4',  poster: 'img/pays-for-itself-poster.jpg'  }, // A3_pays-for-itself.mp4
+  million: { src: 'videos/web/almost-a-million.mp4', poster: 'img/almost-a-million-poster.jpg' }  // B4_almost-a-million.mp4
   // unused for now: B2_fha-and-cra.mp4, A9_mortgage-guide.mp4
 };
 
