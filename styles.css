@@ -244,9 +244,25 @@ ul{padding:0;list-style:none}
 .portrait{width:100%;height:auto;border-radius:var(--r-lg);box-shadow:var(--shadow-lg);object-fit:cover;background:var(--paper-2)}
 
 /* ---------- final / footer ---------- */
-.final__num{margin-top:18px;font-size:21px;font-weight:600;letter-spacing:.01em;color:#fff;font-variant-numeric:tabular-nums}
+/* NJ: a standalone listing page must carry the brokerage's phone number in
+   wording as large as the predominant wording on the page — so it is set at
+   headline scale, not footer scale. */
+.broker{margin-top:34px;padding-top:26px;border-top:1px solid rgba(255,255,255,.16)}
+.broker__brand{
+  margin:0;color:#fff;font-size:clamp(19px,4.6vw,23px);font-weight:700;letter-spacing:-.02em
+}
+.broker__num{
+  display:inline-block;margin-top:6px;color:#fff;text-decoration:none;
+  font-size:clamp(31px,7vw,48px);font-weight:700;line-height:1.05;
+  letter-spacing:-.032em;font-variant-numeric:tabular-nums
+}
+.broker__num:hover{text-decoration:underline;text-underline-offset:5px}
+.broker__person{margin:10px 0 0;color:rgba(255,255,255,.72);font-size:15px;font-weight:500}
 .foot{padding:34px 0 40px;background:var(--paper-2);border-top:1px solid var(--line)}
-.foot__brand{font-size:13.5px;font-weight:600;letter-spacing:.01em;color:var(--ink-3)}
+.foot__row{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.foot__brand{margin:0;font-size:13.5px;font-weight:600;letter-spacing:.01em;color:var(--ink-3)}
+.eho{display:inline-flex;align-items:center;gap:9px;color:var(--ink-2);flex:none}
+.eho__t{font-size:9.5px;font-weight:700;line-height:1.15;letter-spacing:.04em;text-transform:uppercase}
 .foot .disclosure{margin-top:12px}
 
 /* ---------- sticky call bar ---------- */

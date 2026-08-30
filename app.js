@@ -6,8 +6,8 @@
 /* ---------- 1. PHONE (virtual tracking number) ----------
    Change here only. Every CTA on the page reads from this. */
 const phoneConfig = {
-  raw: '+15555550123',          // TODO: replace with the real virtual number (E.164)
-  display: '(555) 555-0123'     // TODO: replace with the same number, formatted
+  raw: '+15513241057',          // virtual tracking number (E.164)
+  display: '(551) 324-1057'     // same number, formatted for display
 };
 
 /* ---------- 2. FINANCING SCENARIOS ----------
@@ -86,10 +86,12 @@ function wirePhone() {
   document.querySelectorAll('[data-call]').forEach(el => {
     el.setAttribute('href', href);
     el.addEventListener('click', () => {
-      track('CallButtonClick', {
-        location: el.dataset.loc || 'unknown',
-        phone: phoneConfig.raw
-      });
+      const params = { location: el.dataset.loc || 'unknown', phone: phoneConfig.raw };
+      track('CallButtonClick', params);
+      // standard event as well, so a Meta campaign can optimise toward calls
+      try {
+        if (typeof window.fbq === 'function') window.fbq('track', 'Contact', params);
+      } catch (e) { /* tracking must never break the page */ }
     });
   });
 
