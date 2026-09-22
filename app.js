@@ -56,23 +56,155 @@ const videoConfig = {
   // unused for now: B2_fha-and-cra.mp4, A9_mortgage-guide.mp4
 };
 
+/* ---------- 3b. ANALYTICS ----------
+   Google Analytics 4: paste the Measurement ID (G-XXXXXXXXXX) here and it
+   switches on. Left empty, nothing from Google loads. Meta Pixel is in index.html. */
+const analyticsConfig = {
+  ga4Id: ''
+};
+
 /* ============================================================
-   4. TRACKING HOOKS
-   Events: LandingPageView, HeroVideoPlay, HeroVideoComplete, CallButtonClick
-   Fans out to dataLayer / gtag / fbq if present, and always fires a
-   DOM CustomEvent so a call-tracking script can listen without edits.
+   4. TRACKING
+   Every event goes to the dataLayer, to GA4 (when analyticsConfig.ga4Id is
+   set), to the Meta Pixel as a custom event, and out as a DOM CustomEvent
+   'lp:<Event>' so a call-tracking script can listen without edits.
+
+   Every event also carries the ad attribution from the URL (utm_source,
+   utm_campaign, utm_content = ad set, utm_term = ad, utm_placement), so a
+   call tap can be traced back to the exact ad that sent the visitor.
+
+   Events
+     LandingPageView        page load
+     ScrollDepth            25 / 50 / 75 / 90 % of the page
+     EngagedTime            15 / 30 / 60 / 120 s with the tab actually visible
+     SectionView            a section reaches the middle of the screen (once each)
+     HeroVideoPlay          hero video started
+     SectionVideoPlay       pays / million video started
+     VideoProgress          25 / 50 / 75 % of any video
+     HeroVideoComplete      hero video finished
+     SectionVideoComplete   section video finished
+     CallButtonClick        any call button tapped; also sends the Meta
+                            standard event 'Contact' with the same details
+
+   Add ?lp_debug=1 to the URL to print every event in the browser console.
    ============================================================ */
+
+/* ---------- 4a. GA4 loader ---------- */
+(function initGA4() {
+  const id = analyticsConfig.ga4Id;
+  if (!id) return;
+  try {
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = window.gtag || function () { window.dataLayer.push(arguments); };
+    window.gtag('js', new Date());
+    window.gtag('config', id);            // page_view + campaign attribution, automatic
+    const s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(id);
+    document.head.appendChild(s);
+  } catch (e) { /* analytics must never break the page */ }
+})();
+
+/* ---------- 4b. ad attribution, read once from the landing URL ---------- */
+const attribution = (() => {
+  const out = {};
+  try {
+    const q = new URLSearchParams(window.location.search);
+    ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'utm_placement']
+      .forEach(k => { const v = q.get(k); if (v) out[k] = v.slice(0, 100); });
+  } catch (e) { /* ignore */ }
+  return out;
+})();
+
+/* ---------- 4c. session state, used to enrich the call event ---------- */
+const session = {
+  startedAt: Date.now(),
+  maxScroll: 0,          // deepest point reached, % of the page
+  engagedSeconds: 0,     // seconds with the tab visible
+  videosStarted: 0
+};
+
+if (/[?&]lp_debug=1(&|$)/.test(window.location.search)) window.LP_DEBUG = true;
+
+/* GA4 prefers snake_case names. null = GA4 already records it by itself. */
+const GA4_EVENT = {
+  LandingPageView: null,
+  ScrollDepth: 'scroll_depth',
+  EngagedTime: 'engaged_time',
+  SectionView: 'section_view',
+  HeroVideoPlay: 'video_start',
+  SectionVideoPlay: 'video_start',
+  VideoProgress: 'video_progress',
+  HeroVideoComplete: 'video_complete',
+  SectionVideoComplete: 'video_complete',
+  CallButtonClick: 'call_click'
+};
+
 const track = (event, params = {}) => {
-  const payload = { event, page: 'bond-street-1057', ...params };
+  const full = { ...attribution, ...params };
+  const payload = { event, page: 'bond-street-1057', ...full };
   try {
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push(payload);
-    if (typeof window.gtag === 'function') window.gtag('event', event, params);
-    if (typeof window.fbq === 'function') window.fbq('trackCustom', event, params);
-    document.dispatchEvent(new CustomEvent('lp:' + event, { detail: params }));
-    if (window.LP_DEBUG) console.log('[track]', event, params);
+    if (typeof window.gtag === 'function') {
+      const name = Object.prototype.hasOwnProperty.call(GA4_EVENT, event) ? GA4_EVENT[event] : event;
+      if (name) window.gtag('event', name, full);
+    }
+    if (typeof window.fbq === 'function') window.fbq('trackCustom', event, full);
+    document.dispatchEvent(new CustomEvent('lp:' + event, { detail: full }));
+    if (window.LP_DEBUG) console.log('[track]', event, full);
   } catch (e) { /* tracking must never break the page */ }
 };
+
+/* ---------- 4d. scroll depth ---------- */
+function wireScrollDepth() {
+  const marks = [25, 50, 75, 90];
+  const hit = new Set();
+  let ticking = false;
+  const measure = () => {
+    ticking = false;
+    const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+    if (scrollable <= 0) return;
+    const pct = Math.min(100, Math.round((window.scrollY / scrollable) * 100));
+    if (pct > session.maxScroll) session.maxScroll = pct;
+    marks.forEach(m => {
+      if (pct >= m && !hit.has(m)) { hit.add(m); track('ScrollDepth', { percent: m }); }
+    });
+  };
+  window.addEventListener('scroll', () => {
+    if (!ticking) { ticking = true; window.requestAnimationFrame(measure); }
+  }, { passive: true });
+}
+
+/* ---------- 4e. engaged time (only counts while the tab is visible) ---------- */
+function wireEngagedTime() {
+  const marks = [15, 30, 60, 120];
+  let next = 0;
+  window.setInterval(() => {
+    if (document.visibilityState !== 'visible') return;
+    session.engagedSeconds += 1;
+    if (next < marks.length && session.engagedSeconds >= marks[next]) {
+      track('EngagedTime', { seconds: marks[next] });
+      next += 1;
+    }
+  }, 1000);
+}
+
+/* ---------- 4f. section views ---------- */
+function wireSectionViews() {
+  if (!('IntersectionObserver' in window)) return;
+  const ids = ['math', 'pays', 'property', 'million', 'multigen', 'location', 'imbar', 'final'];
+  // fires when any part of the section crosses the middle fifth of the screen,
+  // which works for sections taller than the viewport too
+  const obs = new IntersectionObserver((entries, o) => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      track('SectionView', { section: e.target.id });
+      o.unobserve(e.target);
+    });
+  }, { rootMargin: '-40% 0px -40% 0px', threshold: 0 });
+  ids.forEach(id => { const el = document.getElementById(id); if (el) obs.observe(el); });
+}
 
 /* ---------- helpers ---------- */
 const money = n => '$' + Math.round(n).toLocaleString('en-US');
@@ -86,11 +218,18 @@ function wirePhone() {
   document.querySelectorAll('[data-call]').forEach(el => {
     el.setAttribute('href', href);
     el.addEventListener('click', () => {
-      const params = { location: el.dataset.loc || 'unknown', phone: phoneConfig.raw };
+      const params = {
+        location: el.dataset.loc || 'unknown',
+        phone: phoneConfig.raw,
+        seconds_on_page: Math.round((Date.now() - session.startedAt) / 1000),
+        engaged_seconds: session.engagedSeconds,
+        max_scroll: session.maxScroll,
+        videos_started: session.videosStarted
+      };
       track('CallButtonClick', params);
-      // standard event as well, so a Meta campaign can optimise toward calls
+      // Meta standard event too, so a campaign can optimise toward calls
       try {
-        if (typeof window.fbq === 'function') window.fbq('track', 'Contact', params);
+        if (typeof window.fbq === 'function') window.fbq('track', 'Contact', { ...attribution, ...params });
       } catch (e) { /* tracking must never break the page */ }
     });
   });
@@ -207,6 +346,7 @@ function setupVideo(video, cover, key) {
     if (cover) cover.hidden = true;
     if (!started) {
       started = true;
+      session.videosStarted += 1;
       track(key === 'hero' ? 'HeroVideoPlay' : 'SectionVideoPlay', { video: key });
       // the clip carries its own burned-in titles: clear our chrome out of their way
       if (key === 'hero') document.querySelector('.hero').classList.add('is-playing');
@@ -221,6 +361,18 @@ function setupVideo(video, cover, key) {
       if (video.paused) video.play().catch(() => {}); else video.pause();
     });
   }
+
+  const progressHit = new Set();
+  video.addEventListener('timeupdate', () => {
+    if (!started || !isFinite(video.duration) || !video.duration) return;
+    const pct = (video.currentTime / video.duration) * 100;
+    [25, 50, 75].forEach(m => {
+      if (pct >= m && !progressHit.has(m)) {
+        progressHit.add(m);
+        track('VideoProgress', { video: key, percent: m });
+      }
+    });
+  });
 
   video.addEventListener('ended', () => {
     track(key === 'hero' ? 'HeroVideoComplete' : 'SectionVideoComplete', { video: key });
@@ -260,5 +412,8 @@ document.addEventListener('DOMContentLoaded', () => {
   renderCards();
   wirePhone();      // after renderCards so injected card CTAs get wired
   wireVideos();
+  wireScrollDepth();
+  wireEngagedTime();
+  wireSectionViews();
   track('LandingPageView', { referrer: document.referrer || 'direct' });
 });
