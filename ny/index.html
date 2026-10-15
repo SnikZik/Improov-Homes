@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window,document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '309890672012145');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=309890672012145&ev=PageView&noscript=1"
+/></noscript>
+<!-- End Meta Pixel Code -->
+<title>$999K Two-Family in Elizabeth NJ, Compared to New York | Improov Homes</title>
+<meta name="description" content="1057 Bond Street, Elizabeth NJ: a renovated $999,000 two-family next to a similar two-family that sold in Queens, about 33 minutes by train from Penn Station.">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#0F1512">
+<meta property="og:title" content="$999K two-family in Elizabeth NJ, compared to New York">
+<meta property="og:description" content="A renovated $999,000 two-family in Elizabeth NJ, next to a recent Queens sale.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://snikzik.github.io/Improov-Homes/img/hero-15sec-open-poster.jpg">
+<meta property="og:url" content="https://snikzik.github.io/Improov-Homes/ny/">
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="ny.css">
+</head>
+<body class="ny">
+
+<!-- ============ 1. HERO ============ -->
+<header class="hero" id="hero">
+  <div class="hero__media">
+    <p class="hero__addr">For New York buyers &middot; 1057 Bond Street, Elizabeth, New Jersey</p>
+
+    <div class="vframe vframe--hero" data-vframe>
+      <video id="heroVideo"
+             class="hero__video"
+             data-video="hero"
+             playsinline
+             preload="metadata"
+             src="../videos/web/hero-15sec-open.mp4"></video>
+
+      <button class="vcover" id="heroCover" type="button" aria-label="Play video with sound">
+        <span class="vcover__scrim"></span>
+        <span class="vcover__inner">
+          <span class="vcover__play" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M8 5.5 19 12 8 18.5Z"/></svg>
+          </span>
+          <span class="vcover__sound">Watch with sound</span>
+          <span class="vcover__line">A $999K two-family, 33 minutes by train from Penn Station.</span>
+        </span>
+        <span class="vchip"><span class="vchip__dot"></span>Video<span class="vchip__time" data-duration></span></span>
+      </button>
+    </div>
+
+    <p class="hero__price"><strong data-fact="price"></strong> two-family &middot; <span data-fact="beds"></span> bed &middot; <span data-fact="baths"></span> bath</p>
+  </div>
+</header>
+
+<main>
+
+<!-- ============ 2. PRICE, UP FRONT ============ -->
+<section class="sec" id="price">
+  <div class="wrap wrap--narrow">
+    <p class="eyebrow">The price, up front</p>
+    <div data-fin="off">
+      <h2 class="h2">The house is <span data-fact="price"></span>. A similar two-family in Queens sold for <span data-fact="compPrice"></span> this year.</h2>
+      <p class="lede">That one is in Laurelton: two 3 bed units and a garage on 2,271 square feet, sold in June. This one is in Elizabeth, New Jersey, has more room, and the buyer pays no mortgage tax.</p>
+      <dl class="priceband">
+        <div><dt>Purchase price</dt><dd data-fact="price"></dd></div>
+        <div><dt>Taxes, 2025 (est.)</dt><dd><span data-fact="taxes"></span><small>/yr</small></dd></div>
+        <div><dt>Buyer mortgage tax</dt><dd>None in NJ</dd></div>
+        <div class="priceband__total"><dt>Similar two-family in Laurelton, Queens, sold for</dt><dd data-fact="compPrice"></dd></div>
+      </dl>
+    </div>
+    <div data-fin="on" hidden>
+      <h2 class="h2">The house is <span data-fact="price"></span>. Cash to close is about <span data-fact="cashToClose"></span>.</h2>
+      <p class="lede">That covers an estimated <span data-fact="downPercent"></span> FHA down payment and estimated closing costs, to a qualified buyer who will live in one of the units.</p>
+      <dl class="priceband">
+        <div><dt>Purchase price</dt><dd data-fact="price"></dd></div>
+        <div><dt>Est. down payment, <span data-fact="downPercent"></span></dt><dd data-fact="downPayment"></dd></div>
+        <div><dt>Est. closing costs</dt><dd data-fact="closing"></dd></div>
+        <div class="priceband__total"><dt>Est. cash to close</dt><dd data-fact="cashToClose"></dd></div>
+      </dl>
+      <p class="loanex" id="loanExample"></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 3. COMPARISON ============ -->
+<section class="sec sec--alt" id="compare">
+  <div class="wrap">
+    <p class="eyebrow" data-compare-eyebrow></p>
+    <h2 class="h2">What $999K buys in Elizabeth, next to a recent Queens sale.</h2>
+    <p class="lede">A two-family with a garage that sold in Laurelton, Queens in June 2026<span data-fin="on" hidden>, run through the same 3.5% down FHA math</span>.</p>
+
+    <p class="cmp__hint" aria-hidden="true">Swipe to compare</p>
+    <div class="cmp" id="compareTable" role="region" aria-label="Two-family comparison" tabindex="0"><!-- rendered from comparisonConfig --></div>
+
+    <p class="cmp__note">This comparison is not an appraisal and should not be considered the equivalent of an appraisal.</p>
+    <p class="disclosure" id="compareDisclosure"></p>
+    <a class="btn btn--call" href="#" data-call data-loc="compare">See if this home fits you</a>
+  </div>
+</section>
+
+<!-- ============ 4. GETTING TO THE CITY ============ -->
+<section class="sec" id="commute">
+  <div class="wrap">
+    <p class="eyebrow">Getting to the city</p>
+    <h2 class="h2">Elizabeth to New York Penn Station, about 33 minutes by train.</h2>
+    <ul class="place" id="commuteList"><!-- rendered from commuteConfig --></ul>
+  </div>
+</section>
+
+<!-- ============ 5. PAYS FOR ITSELF ============ -->
+<section class="sec sec--dark" id="pays">
+  <div class="wrap wrap--narrow">
+    <p class="eyebrow">Two units, one mortgage</p>
+    <h2 class="h2">Live in one unit. Rent the other.</h2>
+    <ul class="ticks ticks--onDark" id="incomeList"><!-- rendered from subject --></ul>
+    <a class="btn btn--call btn--onDark" href="#" data-call data-loc="pays">See if this home fits you</a>
+  </div>
+</section>
+
+<!-- ============ 6. THE PROPERTY ============ -->
+<section class="sec" id="property">
+  <div class="wrap">
+    <p class="eyebrow">The property</p>
+    <h2 class="h2">Two units with eight bedrooms between them.</h2>
+    <ul class="specs" id="specsList"><!-- rendered from propertyConfig --></ul>
+  </div>
+</section>
+
+<!-- ============ 7. WHO ANSWERS ============ -->
+<section class="sec sec--alt" id="team">
+  <div class="wrap wrap--narrow">
+    <p class="eyebrow">Who you'll talk to</p>
+    <h2 class="h2">The Improov Homes team.</h2>
+    <p class="lede">Imbar Meidani, Founder &amp; Principal Broker, leads the team that answers this line. We know both units and the ways buyers can finance this house.</p>
+    <p class="hours" data-hours-text></p>
+  </div>
+</section>
+
+<!-- ============ 8. FINAL CTA ============ -->
+<section class="sec sec--final" id="final">
+  <div class="wrap wrap--narrow center">
+    <h2 class="h2 h2--xl">Think this two-family could work for you?</h2>
+    <p class="lede">Two quick questions, then we connect you.</p>
+    <a class="btn btn--call btn--lg btn--onDark" href="#" data-call data-loc="final">
+      <span class="btn__ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2Z"/></svg></span>
+      See if this home fits you
+    </a>
+    <div class="broker">
+      <p class="broker__brand">Improov Homes, Licensed Real Estate Broker</p>
+      <p class="broker__num" data-office-text></p>
+      <p class="broker__person">Imbar Meidani &middot; Founder &amp; Principal Broker</p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap wrap--narrow">
+    <div class="foot__row">
+      <span class="eho" role="img" aria-label="Equal Housing Opportunity">
+        <svg viewBox="0 0 64 64" width="40" height="40" aria-hidden="true">
+          <path d="M4 30 32 10l28 20" fill="none" stroke="currentColor" stroke-width="4"/>
+          <path d="M11 30v22h42V30" fill="none" stroke="currentColor" stroke-width="4"/>
+          <rect x="22" y="33" width="20" height="5" fill="currentColor"/>
+          <rect x="22" y="43" width="20" height="5" fill="currentColor"/>
+        </svg>
+        <span class="eho__t">Equal Housing<br>Opportunity</span>
+      </span>
+      <p class="foot__brand">Improov Homes, Licensed Real Estate Broker (New Jersey) &middot; Imbar Meidani, Principal Broker &middot; Office <span data-office-text></span> &middot; Property at 1057 Bond Street, Elizabeth, NJ</p>
+    </div>
+  </div>
+</footer>
+
+<!-- ============ STICKY ============ -->
+<div class="sticky" id="stickyBar">
+  <a class="btn btn--call btn--block" href="#" data-call data-loc="sticky">
+    <span class="btn__ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2Z"/></svg></span>
+    <span class="sticky__label">Call about this home</span>
+  </a>
+</div>
+
+<!-- ============ QUALIFIER (opens from every call button) ============ -->
+<div class="gate" id="gate" hidden>
+  <div class="gate__backdrop" data-gate-close></div>
+  <div class="gate__panel" role="dialog" aria-modal="true" aria-labelledby="gateTitle">
+    <button class="gate__x" type="button" data-gate-close aria-label="Close">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
+
+    <div class="gate__step" data-step="q1">
+      <p class="gate__count">Question 1 of 2</p>
+      <h2 class="gate__q" id="gateTitle">This home is in Elizabeth, New Jersey. Would you live in New Jersey?</h2>
+      <div class="gate__answers">
+        <button class="gate__a" type="button" data-answer="q1:yes">Yes, I'm open to it</button>
+        <button class="gate__a gate__a--quiet" type="button" data-answer="q1:no">No</button>
+      </div>
+    </div>
+
+    <div class="gate__step" data-step="q2" hidden>
+      <p class="gate__count">Question 2 of 2</p>
+      <h2 class="gate__q">Is rental income from the second unit part of your plan?</h2>
+      <div class="gate__answers">
+        <button class="gate__a" type="button" data-answer="q2:yes">Yes</button>
+        <button class="gate__a gate__a--quiet" type="button" data-answer="q2:no">Not really</button>
+      </div>
+    </div>
+
+    <div class="gate__step" data-step="pass" hidden>
+      <h2 class="gate__q">Thanks. Let's talk.</h2>
+      <p class="gate__sub" data-gate-pass-sub></p>
+      <a class="btn btn--call btn--lg btn--block" href="#" data-gate-tel>
+        <span class="btn__ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2Z"/></svg></span>
+        <span data-gate-tel-label></span>
+      </a>
+      <p class="gate__closed" data-gate-closed hidden></p>
+    </div>
+
+    <div class="gate__step" data-step="no-nj" hidden>
+      <h2 class="gate__q">Thanks for telling us.</h2>
+      <p class="gate__sub">This home is in New Jersey, so it may not be the one for you. If New Jersey makes your list later, this page will still be here.</p>
+      <p class="gate__office">Questions about other homes? Improov Homes office: <strong data-office-text></strong></p>
+      <button class="gate__a gate__a--quiet" type="button" data-gate-close>Close</button>
+    </div>
+
+    <div class="gate__step" data-step="no-income" hidden>
+      <h2 class="gate__q">Thanks, that helps.</h2>
+      <p class="gate__sub">The home is for sale to any buyer, however you plan to use it.</p>
+      <p class="gate__office">Questions about this home or others? Improov Homes office: <strong data-office-text></strong></p>
+      <button class="gate__a gate__a--quiet" type="button" data-gate-close>Close</button>
+    </div>
+  </div>
+</div>
+
+<script src="ny.js"></script>
+</body>
+</html>

@@ -1,0 +1,172 @@
+/* ============================================================
+   NY page — additions on top of ../styles.css
+   ============================================================ */
+
+.ny .vcover__line,.ny .h2,.gate__q{text-wrap:balance}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* darker secondary grey: #7C868E failed WCAG AA on the paper background */
+.ny{--ink-3:#5B656D}
+
+/* the play button and its label sit over the house, not over Imbar's face */
+.ny .hero .vcover__inner{justify-content:flex-start;padding-top:24%}
+
+/* no one-word last lines */
+.ny p,.ny li,.ny dt,.ny .broker__brand{text-wrap:pretty}
+
+/* commute: the numbers are the point, so they carry the weight */
+.ny .place__t{font-size:14px;font-weight:600;color:var(--ink-3)}
+.ny .place__d{font-size:17px;font-weight:600;color:var(--ink);line-height:1.45}
+
+/* hero: say the price right under the video, every time */
+.hero__price{
+  margin:0;text-align:center;color:rgba(255,255,255,.86);
+  font-size:15px;font-weight:500;letter-spacing:.005em
+}
+.hero__price strong{color:#fff;font-weight:700;font-size:17px;letter-spacing:-.01em}
+
+/* ---------- price band ---------- */
+.priceband{
+  margin:30px 0 0;display:grid;grid-template-columns:1fr 1fr;gap:1px;
+  background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden
+}
+.priceband > div{background:#fff;padding:18px 18px 16px;display:flex;flex-direction:column;gap:4px}
+.priceband dt{font-size:13px;font-weight:500;color:var(--ink-3)}
+.priceband dd small{font-size:.55em;font-weight:600;color:var(--ink-3);margin-left:2px}
+.priceband dd{margin:0;font-size:clamp(22px,5.6vw,28px);font-weight:700;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.priceband > div:first-child{grid-column:1 / -1}
+.priceband__total{grid-column:1 / -1;background:var(--dark) !important}
+.priceband__total dt{color:#9CB5A8}
+.priceband__total dd{color:#fff;font-size:clamp(30px,7.4vw,40px)}
+
+/* ---------- comparison table ---------- */
+.cmp__hint{
+  margin-top:26px;font-size:13px;font-weight:600;color:var(--ink-3);
+  display:flex;align-items:center;gap:8px;transition:opacity .3s ease
+}
+.cmp__hint::after{content:"";width:28px;height:2px;background:currentColor;border-radius:2px;
+  -webkit-mask:linear-gradient(90deg,#000 60%,transparent);mask:linear-gradient(90deg,#000 60%,transparent)}
+.cmp__hint.is-gone{opacity:0}
+.cmp__hint[hidden]{display:none}
+.cmp{
+  margin-top:12px;overflow-x:auto;-webkit-overflow-scrolling:touch;
+  border:1px solid var(--line);border-radius:var(--r);background:#fff;
+  scroll-snap-type:x proximity;overscroll-behavior-x:contain
+}
+.cmp:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.cmp table{border-collapse:separate;border-spacing:0;min-width:var(--cmp-min,760px);width:100%;font-variant-numeric:tabular-nums}
+.cmp th,.cmp td{padding:14px 14px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.cmp tbody tr:last-child th,.cmp tbody tr:last-child td{border-bottom:0}
+
+/* sticky row labels so the phone always knows which row it is on */
+.cmp tbody th,.cmp .cmp__corner{
+  position:sticky;left:0;z-index:2;background:#fff;width:132px;min-width:132px;
+  box-shadow:1px 0 0 var(--line)
+}
+.cmp thead th{background:#fff;scroll-snap-align:start}
+.cmp thead th.is-us{background:var(--accent);color:#fff;border-bottom-color:var(--accent)}
+.cmp td.is-us{background:#EEF5F1}
+.cmp tr.is-key td,.cmp tr.is-key th{background:#FAF8F3}
+.cmp tr.is-key td.is-us{background:#E1EFE8}
+
+.cmp__status{display:block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.cmp thead th.is-us .cmp__status{color:#BFE3D2}
+.cmp__name{display:block;margin-top:5px;font-size:17px;font-weight:700;letter-spacing:-.02em;line-height:1.2}
+.cmp__area{display:block;margin-top:2px;font-size:13px;font-weight:500;color:var(--ink-3)}
+.cmp thead th.is-us .cmp__area{color:#D6EEE3}
+
+.cmp__k{display:block;font-size:13.5px;font-weight:600;line-height:1.3;color:var(--ink)}
+.cmp__ksub{display:block;margin-top:3px;font-size:11.5px;font-weight:500;line-height:1.35;color:var(--ink-3)}
+.cmp__v{display:block;font-size:15px;font-weight:600;line-height:1.3;letter-spacing:-.01em}
+.cmp__v--big{font-size:19px;font-weight:700;letter-spacing:-.025em}
+.cmp td.is-us .cmp__v--big{color:var(--accent-2)}
+.cmp td.is-na .cmp__v{color:var(--ink-3);font-weight:500}
+.cmp__s{display:block;margin-top:4px;font-size:12px;line-height:1.4;color:var(--ink-3)}
+
+#compare .btn{margin-top:26px}
+.cmp--fit table{min-width:0}
+.cmp--fit th,.cmp--fit td{padding:12px 10px}
+.cmp--fit tbody th,.cmp--fit .cmp__corner{width:104px;min-width:104px}
+.cmp--fit .cmp__v{font-size:14px}
+.cmp--fit .cmp__v--big{font-size:17px}
+.cmp--fit .cmp__name{font-size:15px}
+.cmp--fit .cmp__s{font-size:11.5px}
+.cmp__note{margin-top:20px;font-size:17px;line-height:1.5;color:var(--ink-2);max-width:62ch}
+.gate__office{margin-top:16px;font-size:15px;line-height:1.5;color:var(--ink-3)}
+.gate__office strong{color:var(--ink);font-weight:700}
+
+/* ---------- dark section ticks ---------- */
+.ticks--onDark li{color:#C8D2CC}
+.ny .sticky__label::after{content:none}
+.loanex{margin-top:18px;font-size:16px;line-height:1.55;color:var(--ink-2)}
+
+/* ---------- hours line ---------- */
+.hours{margin-top:18px;font-size:15px;font-weight:600;color:var(--ink-2)}
+
+/* the brokerage office number is text, not a link */
+p.broker__num{margin:6px 0 0}
+
+/* ---------- qualifier ---------- */
+.gate[hidden],.gate [hidden]{display:none !important}
+.gate{position:fixed;inset:0;z-index:100;display:flex;align-items:flex-end;justify-content:center}
+.gate__backdrop{position:absolute;inset:0;background:rgba(10,14,12,.62);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);animation:gateFade .18s ease}
+.gate__panel{
+  position:relative;width:100%;max-width:520px;max-height:92svh;overflow:auto;
+  background:var(--paper);border-radius:22px 22px 0 0;
+  padding:30px 22px calc(26px + env(safe-area-inset-bottom));
+  box-shadow:0 -20px 60px -20px rgba(0,0,0,.5);animation:gateUp .22s cubic-bezier(.2,.8,.2,1)
+}
+.gate__x{
+  position:absolute;top:12px;right:12px;width:44px;height:44px;border:0;border-radius:50%;
+  background:transparent;color:var(--ink-3);cursor:pointer;display:grid;place-items:center
+}
+.gate__x:hover{background:var(--paper-2);color:var(--ink)}
+.gate__count{font-size:12.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+.gate__q{
+  margin-top:10px;padding-right:34px;
+  font-size:clamp(23px,6vw,28px);font-weight:700;line-height:1.18;letter-spacing:-.025em
+}
+.gate__sub{margin-top:12px;font-size:16px;line-height:1.55;color:var(--ink-2)}
+.gate__answers{margin-top:24px;display:grid;gap:10px}
+.gate__a{
+  min-height:56px;width:100%;border-radius:14px;cursor:pointer;
+  font:inherit;font-size:17px;font-weight:600;letter-spacing:-.01em;
+  background:var(--accent);color:#fff;border:1px solid var(--accent);
+  transition:background .15s ease,transform .15s ease
+}
+.gate__a:hover{background:var(--accent-2)}
+.gate__a:active{transform:scale(.99)}
+.gate__a--quiet{background:transparent;color:var(--ink);border-color:var(--line)}
+.gate__a--quiet:hover{background:var(--paper-2)}
+.gate__step > .gate__a--quiet{margin-top:22px}
+.gate__step .btn{margin-top:22px}
+.gate__closed{
+  margin-top:20px;padding:16px 18px;border-radius:14px;background:var(--paper-2);
+  font-size:16px;line-height:1.5;color:var(--ink)
+}
+.gate__closed strong{font-size:19px;letter-spacing:-.01em}
+.gate-open,.gate-open body{overflow:hidden}
+
+@keyframes gateUp{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
+@keyframes gateFade{from{opacity:0}to{opacity:1}}
+
+@media (min-width:900px){
+  .priceband{grid-template-columns:repeat(3,1fr)}
+  .priceband > div:first-child{grid-column:auto}
+  .priceband__total{grid-column:1 / -1;flex-direction:row !important;align-items:baseline;justify-content:space-between;gap:20px}
+  .cmp__hint{display:none}
+  .cmp table{min-width:0}
+  .cmp tbody th,.cmp .cmp__corner{width:200px;min-width:200px}
+  .cmp--fit th,.cmp--fit td{padding:16px 18px}
+  .cmp--fit .cmp__v{font-size:15px}
+  .cmp--fit .cmp__v--big{font-size:19px}
+  .cmp--fit .cmp__name{font-size:17px}
+  .ny .place li{padding-right:24px}
+  .ny .place li:nth-child(even){padding-left:24px}
+  .cmp th,.cmp td{padding:16px 18px}
+  .gate{align-items:center}
+  .gate__panel{border-radius:22px;padding:36px 34px 32px}
+}
+@media (prefers-reduced-motion:reduce){
+  .gate__panel,.gate__backdrop{animation:none}
+}
