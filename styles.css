@@ -216,6 +216,26 @@ ul{padding:0;list-style:none}
 }
 .card__net-sub{font-size:12.5px;color:var(--ink-3);margin-top:2px}
 .card .btn{margin-top:20px;width:100%}
+.card__ksub{display:block;margin-top:2px;font-size:12px;line-height:1.35;color:var(--ink-3)}
+/* Reg Z: the loan example sits in the card next to the numbers, at body size */
+.card__loan{margin-top:16px;font-size:16px;line-height:1.55;color:var(--ink-2)}
+.cards[hidden],[data-fin][hidden]{display:none !important}
+
+/* ---------- prices-only band (shown until a lender APR is in app.js) ---------- */
+.facts{
+  margin:30px 0 0;display:grid;grid-template-columns:1fr 1fr;gap:1px;
+  background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden
+}
+.facts > div{background:var(--white);padding:18px 18px 16px;display:flex;flex-direction:column;gap:4px}
+.facts > div:first-child{grid-column:1 / -1}
+.facts dt{font-size:13px;font-weight:500;color:var(--ink-3)}
+.facts dd{margin:0;font-size:clamp(22px,5.6vw,28px);font-weight:700;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.facts dd small{font-size:.55em;font-weight:600;color:var(--ink-3);margin-left:2px}
+.facts__note{margin-top:14px;font-size:15px;line-height:1.5;color:var(--ink-2);max-width:62ch}
+@media (min-width:900px){
+  .facts{grid-template-columns:repeat(3,1fr)}
+  .facts > div:first-child{grid-column:auto}
+}
 
 /* ---------- lists ---------- */
 .ticks{margin-top:22px;display:grid;gap:12px}
@@ -249,7 +269,7 @@ ul{padding:0;list-style:none}
    headline scale, not footer scale. */
 .broker{margin-top:34px;padding-top:26px;border-top:1px solid rgba(255,255,255,.16)}
 .broker__brand{
-  margin:0;color:#fff;font-size:clamp(19px,4.6vw,23px);font-weight:700;letter-spacing:-.02em
+  margin:0;color:#fff;font-size:clamp(19px,4.6vw,23px);font-weight:700;letter-spacing:-.02em;text-wrap:balance
 }
 .broker__num{
   display:inline-block;margin-top:6px;color:#fff;text-decoration:none;

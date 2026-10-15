@@ -1,6 +1,6 @@
 /* ============================================================
    1057 Bond Street — Improov Homes
-   Single source of truth for phone, financing numbers, videos.
+   Single source of truth for phone, prices, financing numbers, videos.
    ============================================================ */
 
 /* ---------- 1. PHONE (virtual tracking number) ----------
@@ -10,53 +10,107 @@ const phoneConfig = {
   display: '(551) 324-1057'     // same number, formatted for display
 };
 
-/* ---------- 2. FINANCING SCENARIOS ----------
-   Update these when the lender sends new figures. Nothing else to touch.
-   effectiveMonthly is calculated: monthlyPayment - projectedRent. */
+/* ---------- 2. THE HOUSE AND THE RENT ----------
+   Checked against GSMLS #4057212, the 2025 tax bill and Improov's own rental
+   listings (fact-check run 15 Oct 2026). */
+const propertyConfig = {
+  price: 999000,
+  taxes: 11892                  // 2025 bill. The $14,144 on Roee's sheet was the 2023 bill
+};
+
+/* The rent subtracted on the financing cards. Unit 2 is listed at $2,750.
+   Unit 1 together with the lower level is listed at $4,500; using that figure
+   would mean the buyer lives in Unit 2. Both listings are asking rents on
+   vacant units (PadMapper, rent-to-own only), not leases. */
+const rentConfig = {
+  amount: 2750,
+  label: 'Unit 2 asking rent',
+  sub: 'If you live in Unit 1. No lease in place.'
+};
+
+/* ---------- 3. FINANCING SWITCH (Reg Z, 12 CFR 1026.24) ----------
+   Down payment and monthly payment are "triggering terms": once either is on
+   the page, the page must also give the APR and the repayment terms. So every
+   scenario carries a loan block, and its card is shown only when every field
+   of that block is filled from the lender's written quote: kind, apr, rate,
+   rateDate, noteAmount, payments, principalInterest.
+   While no scenario is complete the section shows the price, the taxes and
+   the asking rent only, and no financing number reaches the page at all.
+   Preview the financing version on localhost with ?preview_financing=1.
+   Effective monthly cost is calculated: monthlyPayment - rentConfig.amount. */
 const financingConfig = {
-  disclosure: 'Illustrative financing examples for qualified buyers only. Rates, payments, eligibility and rental income may change and are subject to lender approval.',
   scenarios: [
     {
       id: 'fha',
       name: 'FHA',
-      downPercent: '3.5% Down',
-      downPayment: 35000,
-      monthlyPayment: 7933,
-      projectedRent: 4500,
-      badge: null
+      downPct: '3.5%',
+      downPayment: 34965,         // same figures as the NY page (ny/ny.js)
+      monthlyPayment: 8288,       // P&I + 0.75% annual MIP + 2025 taxes + homeowners insurance
+      badge: null,
+      loan: {
+        kind: '30-year fixed FHA',
+        apr: '',                  // e.g. '7.812%' from the lender, in writing
+        rate: '6.875%',
+        rateDate: 'Oct 1, 2026',
+        noteAmount: 980906,       // $964,035 base loan + 1.75% upfront MIP
+        noteAmountNote: 'including 1.75% upfront mortgage insurance',
+        payments: 360,
+        principalInterest: 6444
+      }
     },
     {
       id: 'cra',
       name: 'CRA Conventional',
-      downPercent: '5% Down',
-      downPayment: 50000,
-      monthlyPayment: 6680,
-      projectedRent: 4500,
-      badge: 'Best value if you qualify'
+      downPct: '5%',
+      downPayment: 50000,         // August sheet, not re-checked: replace with the lender's quote
+      monthlyPayment: 6680,       //  together with the APR and the loan terms below
+      badge: 'Best value if you qualify',
+      loan: { kind: '', apr: '', rate: '', rateDate: '', noteAmount: null, noteAmountNote: '', payments: 360, principalInterest: null }
     },
     {
       id: 'conventional',
       name: 'Conventional',
-      downPercent: '20% Down',
-      downPayment: 200000,
+      downPct: '20%',
+      downPayment: 200000,        // August sheet, not re-checked: replace with the lender's quote
       monthlyPayment: 6608,
-      projectedRent: 4500,
-      badge: null
+      badge: null,
+      loan: { kind: '', apr: '', rate: '', rateDate: '', noteAmount: null, noteAmountNote: '', payments: 360, principalInterest: null }
     }
   ]
 };
 
-/* ---------- 3. VIDEO SOURCES ----------
-   Drop the files into /videos with these names (see README).
-   Posters are optional — without them the first frame is used. */
-const videoConfig = {
-  hero:    { src: 'videos/web/hero-15sec-open.mp4',  poster: 'img/hero-15sec-open-poster.jpg'  }, // C1_15sec-open - טוב.mp4
-  pays:    { src: 'videos/web/pays-for-itself.mp4',  poster: 'img/pays-for-itself-poster.jpg'  }, // A3_pays-for-itself.mp4
-  million: { src: 'videos/web/almost-a-million.mp4', poster: 'img/almost-a-million-poster.jpg' }  // B4_almost-a-million.mp4
-  // unused for now: B2_fha-and-cra.mp4, A9_mortgage-guide.mp4
+const LOAN_FIELDS = ['kind', 'apr', 'rate', 'rateDate', 'noteAmount', 'payments', 'principalInterest'];
+const loanReady = s => Boolean(s.loan) && LOAN_FIELDS.every(k => Boolean(s.loan[k]));
+const previewFinancing = () =>
+  /^(localhost|127\.0\.0\.1|\[::1\])$/.test(window.location.hostname) &&
+  /[?&]preview_financing=1(&|$)/.test(window.location.search);
+const shownScenarios = () => financingConfig.scenarios.filter(s => loanReady(s) || previewFinancing());
+
+const BASE_DISCLOSURE =
+  'Property taxes are the 2025 bill and can change. Rent figures are asking rents from current rental listings; ' +
+  'both units are vacant and no lease is in place. Information is deemed reliable but not guaranteed.';
+
+const disclosure = () => {
+  if (!shownScenarios().length) return BASE_DISCLOSURE;
+  return 'Estimates for illustration only, not a loan offer or a commitment to lend. ' +
+    'Each loan example is to a qualified buyer who will live in one of the units; not every buyer will qualify; subject to lender approval. ' +
+    'Rates change daily. Estimated monthly housing payments include principal and interest, property taxes, homeowners insurance and any mortgage insurance, ' +
+    'so the actual payment is higher than principal and interest alone. ' +
+    `Estimated effective monthly cost subtracts Unit 2's asking rent of ${money(rentConfig.amount)}; actual rent may be lower and the unit may sit vacant. ` +
+    BASE_DISCLOSURE;
 };
 
-/* ---------- 3b. ANALYTICS ----------
+/* ---------- 3b. VIDEO SOURCES ----------
+   Posters are optional; without them the first frame is used. */
+const videoConfig = {
+  hero: { src: 'videos/web/hero-15sec-open.mp4', poster: 'img/hero-15sec-open-poster.jpg' } // C1_15sec-open - טוב.mp4
+  // Off the page on purpose, files kept in /videos:
+  //   pays-for-itself.mp4 (A3) says "FROM $35,000 DOWN", a Reg Z triggering term with no APR in the video
+  //   almost-a-million.mp4 (B4) says "Built for extended family" (familial status, fair housing)
+  //     and "$35,000", "$2,000 / month", "5% down / no PMI" (Reg Z)
+};
+
+/* ---------- 3c. ANALYTICS ----------
    Google Analytics 4: paste the Measurement ID (G-XXXXXXXXXX) here and it
    switches on. Left empty, nothing from Google loads. Meta Pixel is in index.html. */
 const analyticsConfig = {
@@ -79,7 +133,7 @@ const analyticsConfig = {
      EngagedTime            15 / 30 / 60 / 120 s with the tab actually visible
      SectionView            a section reaches the middle of the screen (once each)
      HeroVideoPlay          hero video started
-     SectionVideoPlay       pays / million video started
+     SectionVideoPlay       a section video started (none on the page now)
      VideoProgress          25 / 50 / 75 % of any video
      HeroVideoComplete      hero video finished
      SectionVideoComplete   section video finished
@@ -193,7 +247,7 @@ function wireEngagedTime() {
 /* ---------- 4f. section views ---------- */
 function wireSectionViews() {
   if (!('IntersectionObserver' in window)) return;
-  const ids = ['math', 'pays', 'property', 'million', 'multigen', 'location', 'imbar', 'final'];
+  const ids = ['math', 'pays', 'property', 'multigen', 'location', 'imbar', 'final'];
   // fires when any part of the section crosses the middle fifth of the screen,
   // which works for sections taller than the viewport too
   const obs = new IntersectionObserver((entries, o) => {
@@ -240,31 +294,59 @@ function wirePhone() {
 }
 
 /* ============================================================
-   6. FINANCING CARDS
+   6. THE NUMBERS: prices only, or financing cards with their loan example
    ============================================================ */
-function renderCards() {
-  const host = document.getElementById('financingCards');
-  if (!host) return;
+const blank = v => v || '[from lender]';
 
-  host.innerHTML = financingConfig.scenarios.map(s => {
-    const effective = s.monthlyPayment - s.projectedRent;
-    return `
+function loanExampleText(s) {
+  const L = s.loan;
+  return `Example, to a qualified buyer: ${money(propertyConfig.price)} price, ${money(s.downPayment)} (${s.downPct}) down, ` +
+    `${blank(L.kind)} loan of ${L.noteAmount ? money(L.noteAmount) : '[from lender]'}${L.noteAmountNote ? ' ' + L.noteAmountNote : ''}, ` +
+    `${L.payments || '[from lender]'} monthly payments of ${L.principalInterest ? money(L.principalInterest) : '[from lender]'} principal and interest ` +
+    `at ${blank(L.rate)} interest, ${L.apr || '[APR from lender]'} APR, rate as of ${blank(L.rateDate)}. ` +
+    `The monthly housing payment above also includes property taxes and insurance.`;
+}
+
+function renderCards() {
+  const shown = shownScenarios();
+  const fin = shown.length > 0;
+  document.documentElement.classList.toggle('fin-on', fin);
+  document.querySelectorAll('[data-fin="on"]').forEach(el => { el.hidden = !fin; });
+  document.querySelectorAll('[data-fin="off"]').forEach(el => { el.hidden = fin; });
+
+  const facts = {
+    price: money(propertyConfig.price),
+    taxes: money(propertyConfig.taxes),
+    rent: money(rentConfig.amount)
+  };
+  document.querySelectorAll('[data-fact]').forEach(el => {
+    const k = el.dataset.fact;
+    if (k in facts) el.textContent = facts[k];
+  });
+
+  const host = document.getElementById('financingCards');
+  if (host) {
+    // without a complete lender quote nothing is rendered, not even hidden
+    host.hidden = !fin;
+    host.innerHTML = shown.map(s => {
+      const effective = s.monthlyPayment - rentConfig.amount;
+      return `
       <article class="card${s.badge ? ' card--best' : ''}">
         ${s.badge ? `<span class="card__badge">${s.badge}</span>` : ''}
         <h3 class="card__name">${s.name}</h3>
-        <p class="card__down">${s.downPercent}</p>
+        <p class="card__down">${s.downPct} Down</p>
         <div class="card__rows">
           <div class="card__row">
-            <span class="card__k">Approx. down payment</span>
+            <span class="card__k">Est. down payment</span>
             <span class="card__v">${money(s.downPayment)}</span>
           </div>
           <div class="card__row">
-            <span class="card__k">Estimated monthly housing payment</span>
+            <span class="card__k">Est. monthly housing payment</span>
             <span class="card__v">${money(s.monthlyPayment)}</span>
           </div>
           <div class="card__row card__row--rent">
-            <span class="card__k">Projected rent from other unit</span>
-            <span class="card__v">&minus;${money(s.projectedRent)}</span>
+            <span class="card__k">${rentConfig.label}<span class="card__ksub">${rentConfig.sub}</span></span>
+            <span class="card__v">&minus;${money(rentConfig.amount)}</span>
           </div>
         </div>
         <div class="card__net">
@@ -272,15 +354,16 @@ function renderCards() {
           <p class="card__net-v">${money(effective)}</p>
           <p class="card__net-sub">per month, estimated</p>
         </div>
+        <p class="card__loan">${loanExampleText(s)}</p>
         <a class="btn btn--call" href="#" data-call data-loc="card-${s.id}">Call Imbar</a>
       </article>`;
-  }).join('');
+    }).join('');
+  }
 
+  const text = disclosure();
   const note = document.getElementById('mathDisclosure');
-  if (note) note.textContent = financingConfig.disclosure;
-  document.querySelectorAll('[data-disclosure-copy]').forEach(el => {
-    el.textContent = financingConfig.disclosure;
-  });
+  if (note) note.textContent = text;
+  document.querySelectorAll('[data-disclosure-copy]').forEach(el => { el.textContent = text; });
 }
 
 /* ============================================================

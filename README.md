@@ -20,11 +20,20 @@ Every CTA points at one `tel:` number.
    | `videos/pays-for-itself.mp4` | `A3_pays-for-itself.mp4` | 33.6 MB | 0:56 |
    | `videos/almost-a-million.mp4` | `B4_almost-a-million.mp4` | 40.5 MB | 1:12 |
 
-   All three are 1080×1920 (9:16). Only the hero loads on page open; the other two
-   load when they come near the viewport.
+   All three are 1080×1920 (9:16). **Only the hero is on the page** (since 15 Oct 2026).
+   `pays-for-itself` says "FROM $35,000 DOWN" and `almost-a-million` says "Built for
+   extended family", "$2,000 / month" and "5% down / no PMI": Reg Z triggering terms
+   with no APR, and a familial-status line (fair housing). The files stay in `videos/`.
 
-3. **Portrait** — `img/imbar.jpg` (portrait crop, ~720×900).
-4. **Posters** — after replacing any mp4, run:
+3. **Financing (Reg Z)**: `app.js` → `financingConfig`. Each scenario has a `loan` block.
+   A card shows only when every field of its block is filled from the lender's written
+   quote (`kind`, `apr`, `rate`, `rateDate`, `noteAmount`, `payments`, `principalInterest`),
+   and then it carries its own loan example at body size. With no complete block the
+   section shows list price, 2025 taxes and Unit 2's asking rent only. FHA is pre-filled
+   from the NY page and waits for `apr` alone; CRA and Conventional need the full quote.
+   Preview on localhost with `?preview_financing=1`.
+4. **Portrait** — `img/imbar.jpg` (portrait crop, ~720×900).
+5. **Posters** — after replacing any mp4, run:
 
 ```bash
 ./make-posters.sh
