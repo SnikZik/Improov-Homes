@@ -62,7 +62,6 @@ ul{padding:0;list-style:none}
   font-size:12.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
   color:var(--ink-3);margin-bottom:16px
 }
-.eyebrow::before{content:"";width:22px;height:2px;background:var(--accent);flex:none}
 .center .eyebrow{justify-content:center}
 .h2{
   font-family:var(--display);
@@ -93,7 +92,7 @@ ul{padding:0;list-style:none}
 .btn--onDark{background:#fff;color:var(--dark);box-shadow:0 10px 30px -14px rgba(0,0,0,.9)}
 .btn--onDark:hover{background:#F0EFEA}
 .btn__ico{display:inline-flex}
-.sec .btn{margin-top:30px}
+.sec .btn{display:flex;width:fit-content;margin:30px auto 0}
 
 :where(a,button):focus-visible{outline:3px solid var(--gold);outline-offset:3px}
 
