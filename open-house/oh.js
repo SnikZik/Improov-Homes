@@ -24,8 +24,9 @@ const PAGE_ID = 'bond-street-1057-open-house';
 /* ============================================================
    TRACKING
      LandingPageView, ScrollDepth, SectionView,
-     CallButtonClick (+ Meta 'Contact'), TextButtonClick (+ Meta 'Contact'),
-     AddToCalendar, VideoPlay, VideoProgress, VideoComplete
+     CallQuestionOpen, CallQuestionAnswer (interest: buy | rto),
+     CallButtonClick (+ Meta 'Contact', with the answer), TextButtonClick (+ Meta 'Contact'),
+     RSVPOpen, RSVPBooked (+ Meta 'Schedule'), VideoPlay, VideoProgress, VideoComplete
    ?lp_debug=1 prints every event.
    ============================================================ */
 (function initGA4() {
@@ -75,18 +76,65 @@ const contact = (params) => {
    ============================================================ */
 function wireContacts() {
   const base = () => ({ phone: phoneConfig.raw, seconds_on_page: Math.round((Date.now() - session.startedAt) / 1000), max_scroll: session.maxScroll });
+
+  // every call button asks one question first; the tap-to-call is inside the popup
+  const gate = document.getElementById('callGate');
+  const tel = gate.querySelector('[data-gate-tel]');
+  const sub = gate.querySelector('[data-call-sub]');
+  let origin = 'unknown', answer = null, armedAt = 0, lastFocus = null;
+  const SUB = {
+    buy: 'Ask about the $899,000 price and the open house this weekend.',
+    rto: 'Ask for the written rent-to-own terms for the first-floor unit and lower level.'
+  };
+  const show = step => {
+    armedAt = Date.now() + 400;                 // a double tap must not skip the question
+    gate.querySelectorAll('.gate__step').forEach(s => { s.hidden = s.dataset.step !== step; });
+    const first = gate.querySelector(`.gate__step[data-step="${step}"]`).querySelector('button, a');
+    if (first) setTimeout(() => first.focus({ preventScroll: true }), 30);
+  };
+  const open = loc => {
+    origin = loc || 'unknown'; answer = null; lastFocus = document.activeElement;
+    gate.hidden = false; document.documentElement.classList.add('gate-open');
+    track('CallQuestionOpen', { location: origin });
+    show('q');
+  };
+  const close = () => {
+    gate.hidden = true; document.documentElement.classList.remove('gate-open');
+    if (lastFocus && lastFocus.focus) lastFocus.focus({ preventScroll: true });
+  };
   document.querySelectorAll('[data-call]').forEach(el => {
-    el.setAttribute('href', 'tel:' + phoneConfig.raw);
-    el.addEventListener('click', () => { const p = { location: el.dataset.loc, via: 'call', ...base() }; track('CallButtonClick', p); contact(p); });
+    el.setAttribute('href', '#call');
+    el.addEventListener('click', e => { e.preventDefault(); open(el.dataset.loc); });
   });
+  gate.querySelectorAll('[data-answer]').forEach(b => b.addEventListener('click', () => {
+    if (Date.now() < armedAt) return;
+    answer = b.dataset.answer;
+    track('CallQuestionAnswer', { location: origin, interest: answer });
+    sub.textContent = SUB[answer];
+    show('call');
+  }));
+  tel.setAttribute('href', 'tel:' + phoneConfig.raw);
+  tel.addEventListener('click', () => {
+    const p = { location: origin, via: 'call', interest: answer, ...base() };
+    track('CallButtonClick', p); contact(p);
+  });
+  gate.querySelectorAll('[data-gate-close]').forEach(el => el.addEventListener('click', close));
+  document.addEventListener('keydown', e => {
+    if (gate.hidden) return;
+    if (e.key === 'Escape') return close();
+    if (e.key === 'Tab') {
+      const f = [...gate.querySelectorAll('button, a')].filter(n => n.offsetParent !== null);
+      if (!f.length) return;
+      if (e.shiftKey && document.activeElement === f[0]) { e.preventDefault(); f[f.length - 1].focus(); }
+      else if (!e.shiftKey && document.activeElement === f[f.length - 1]) { e.preventDefault(); f[0].focus(); }
+    }
+  });
+
   // "?&body=" is the form both iOS and Android read
   const sms = 'sms:' + phoneConfig.raw + '?&body=' + encodeURIComponent(phoneConfig.textBody);
   document.querySelectorAll('[data-text]').forEach(el => {
     el.setAttribute('href', sms);
     el.addEventListener('click', () => { const p = { location: el.dataset.loc, via: 'text', ...base() }; track('TextButtonClick', p); contact(p); });
-  });
-  document.querySelectorAll('[data-cal]').forEach(el => {
-    el.addEventListener('click', () => track('AddToCalendar', { location: el.dataset.loc }));
   });
   document.querySelectorAll('[data-phone-text]').forEach(el => { el.textContent = phoneConfig.display; });
 }
@@ -145,6 +193,50 @@ function wireVideo() {
   }
 }
 
+/* RSVP: the GHL booking calendar in a popup. The visitor picks a time and fills in
+   Imbar's open house form; GHL texts and emails them the details with calendar links
+   and a reminder, and alerts Roi, Imbar and Snir. The iframe and GHL's resize script
+   load only on first open, so nothing third-party slows the page. */
+function wireRsvp() {
+  const gate = document.getElementById('rsvpGate');
+  if (!gate) return;
+  const frame = gate.querySelector('iframe');
+  let loaded = false, booked = false, origin = 'unknown', lastFocus = null;
+  const open = loc => {
+    origin = loc || 'unknown'; lastFocus = document.activeElement;
+    if (!loaded) {
+      loaded = true;
+      frame.src = frame.dataset.src;
+      const s = document.createElement('script');
+      s.src = 'https://link.msgsndr.com/js/form_embed.js';
+      s.async = true;
+      document.body.appendChild(s);
+    }
+    gate.hidden = false; document.documentElement.classList.add('gate-open');
+    track('RSVPOpen', { location: origin });
+    setTimeout(() => gate.querySelector('.gate__x').focus({ preventScroll: true }), 30);
+  };
+  const close = () => {
+    gate.hidden = true; document.documentElement.classList.remove('gate-open');
+    if (lastFocus && lastFocus.focus) lastFocus.focus({ preventScroll: true });
+  };
+  document.querySelectorAll('[data-cal]').forEach(el => el.addEventListener('click', e => { e.preventDefault(); open(el.dataset.loc); }));
+  gate.querySelectorAll('[data-rsvp-close]').forEach(el => el.addEventListener('click', close));
+  document.addEventListener('keydown', e => { if (!gate.hidden && e.key === 'Escape') close(); });
+  // GHL posts messages from the widget; count a finished booking once
+  window.addEventListener('message', e => {
+    if (!/leadconnectorhq\.com|msgsndr\.com/.test(e.origin || '')) return;
+    let txt = '';
+    try { txt = typeof e.data === 'string' ? e.data : JSON.stringify(e.data); } catch (err) { return; }
+    if (window.LP_DEBUG) console.log('[ghl]', txt.slice(0, 200));
+    if (!booked && /booking[-_ ]?(complete|success|confirmed)|appointment[-_ ]?(booked|created)|thank/i.test(txt)) {
+      booked = true;
+      track('RSVPBooked', { location: origin });
+      try { if (typeof window.fbq === 'function') window.fbq('track', 'Schedule', { ...attribution, location: origin }); } catch (err) { /* ignore */ }
+    }
+  });
+}
+
 /* the bottom bar stays out of the way while the hero's own buttons are on screen */
 function wireSticky() {
   const bar = document.getElementById('sticky');
@@ -156,6 +248,7 @@ function wireSticky() {
 document.addEventListener('DOMContentLoaded', () => {
   applySchedule();
   wireSticky();
+  wireRsvp();
   wireContacts();
   wireScroll();
   wireVideo();
