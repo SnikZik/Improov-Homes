@@ -25,12 +25,12 @@ plus two exterior shots from her earlier clips. No audio: add music from Meta's 
 >
 > Not ready to buy? Rent to own. The first-floor unit plus the finished lower level is $4,500 a month: 3 bedrooms, 2 full baths and the updated kitchen on the main level, two bonus rooms and a full bath below. Rent now with the option to buy, and ask for the written terms at the open house.
 >
-> Call or text (551) 324-1057.
+> Call (551) 324-1057.
 > Improov Homes, Licensed Real Estate Broker. Equal Housing Opportunity.
 
 **Headline:** Open House Sat & Sun · Now $899,000
-**Description:** 1057 Bond St, Elizabeth NJ · Call or text (551) 324-1057
-**Button:** Call Now
+**Description:** 1057 Bond St, Elizabeth NJ · Call (551) 324-1057
+**Button:** Learn More (to the open house page, so the pixel counts the lead)
 
 No down payment amount or percentage, monthly payment, rate or term anywhere: keep it that way,
 or the ad becomes a credit ad that needs the APR (Reg Z).

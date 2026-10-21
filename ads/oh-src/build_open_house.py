@@ -12,7 +12,7 @@ from playwright.sync_api import sync_playwright
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]          # repo root
 OUT = ROOT / 'ads' / 'open-house'
-WORK = pathlib.Path('/private/tmp/claude-501/-Users-s/5f9fd08e-11bf-4ca5-9104-a5feeb1b005b/scratchpad/oh/work')
+WORK = pathlib.Path('/private/tmp/claude-501/-Users-s/380d5559-9905-4a9f-8ab1-c17ecde0c63a/scratchpad/oh/work')
 WALK = pathlib.Path(sys.argv[1]) if len(sys.argv) > 1 else pathlib.Path('/Users/s/Downloads/WhatsApp Video 2026-10-21 at 16.22.19.mp4')
 
 CFG = {
@@ -113,7 +113,7 @@ body{{background:rgba(15,21,18,.9)}}
 <p class="price">{CFG['price']}</p>
 <div class="dates">{dates_html(50)}</div>
 <p class="addr2">{html.escape(CFG['address'])}</p>
-<div class="call">{PHONE.format(s=54)}Call or text {CFG['phone']}</div>
+<div class="call">{PHONE.format(s=54)}Call {CFG['phone']}</div>
 <p class="rto">{CFG['rto']}</p>
 <div class="legal"><span class="eho">{EHO}<i>Equal Housing<br>Opportunity</i></span><p><b>{BROKER}</b>{OFFICE}</p></div>
 </div></body></html>"""
@@ -149,7 +149,7 @@ html,body{{width:{w}px;height:{h}px;overflow:hidden;font-family:{FONT};-webkit-f
 <p class="price">{CFG['price']}</p>
 <div class="dates">{dates_html(40)}</div>
 <p class="addr2">{html.escape(CFG['address'])}</p>
-<p class="call">{PHONE.format(s=40 if story else 34)}Call or text {CFG['phone']}</p>
+<p class="call">{PHONE.format(s=40 if story else 34)}Call {CFG['phone']}</p>
 <p class="rto">{CFG['rto']}</p>
 <div class="legal"><p><b>{BROKER}</b>{OFFICE}</p><span class="eho">{EHO.replace('width="78" height="78"','width="60" height="60"')}<i>Equal Housing<br>Opportunity</i></span></div>
 </div></body></html>"""

@@ -15,7 +15,7 @@ Script:
 
 > Open house this weekend at 1057 Bond Street, Elizabeth, New Jersey. Price cut one hundred
 > thousand, now eight ninety-nine. A renovated legal two-family, about thirty-three minutes by
-> train to Penn Station. Saturday twelve to three, Sunday one to three. Call or text
+> train to Penn Station. Saturday twelve to three, Sunday one to three. Call
 > 551 324 1057.
 
 Landing page: https://snikzik.github.io/Improov-Homes/open-house/
