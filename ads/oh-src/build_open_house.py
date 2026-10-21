@@ -174,6 +174,19 @@ def guard():
         sys.exit(f'dash in copy: {bad}')
 
 
+STILL_AT = 0.7    # walkthrough second with the whole front of the house, straight on (Snir's pick)
+
+
+def still_bg(h):
+    """Photo block for the stills: the whole house at full height, a blurred copy behind it."""
+    out = WORK / f'still-{h}.jpg'
+    run(['ffmpeg', '-y', '-loglevel', 'error', '-ss', str(STILL_AT), '-i', str(WALK), '-frames:v', '1',
+         '-filter_complex', f'[0]split[a][b];[a]scale=1080:-2,crop=1080:{h},boxblur=24:2,eq=brightness=-0.12:saturation=0.85[bg];'
+         f'[b]scale=-2:{h}:flags=lanczos,unsharp=5:5:0.7[fg];[bg][fg]overlay=(W-w)/2:0',
+         '-q:v', '2', str(out)])
+    return 'data:image/jpeg;base64,' + base64.b64encode(out.read_bytes()).decode()
+
+
 def build():
     guard()
     if WORK.exists():
@@ -198,8 +211,8 @@ def build():
         for i, s in enumerate(SCENES):
             render(page, text_html(s[3], s[4]), WORK / f'text{i}.png')
         render(page, end_html(), WORK / 'end.png')
-        render(page, still_html(uri, 1080, 1350, 720), OUT / 'open-house_feed-4x5.png', 1080, 1350, transparent=False)
-        render(page, still_html(uri, 1080, 1920, 1000), OUT / 'open-house_story-9x16.png', 1080, 1920, transparent=False)
+        render(page, still_html(still_bg(720), 1080, 1350, 720), OUT / 'open-house_feed-4x5.png', 1080, 1350, transparent=False)
+        render(page, still_html(still_bg(1000), 1080, 1920, 1000), OUT / 'open-house_story-9x16.png', 1080, 1920, transparent=False)
         b.close()
 
     parts = []
