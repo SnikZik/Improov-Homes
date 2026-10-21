@@ -171,16 +171,30 @@ src="https://www.facebook.com/tr?id=309890672012145&ev=PageView&noscript=1"
 </div>
 
 
-<!-- ============ RSVP (GHL calendar "1057 Bond St Open House") ============ -->
+<!-- ============ RSVP (pick one of the two days, then GHL form "1057 Bond Open House RSVP") ============ -->
 <div class="gate" id="rsvpGate" hidden>
   <div class="gate__backdrop" data-rsvp-close></div>
-  <div class="gate__panel gate__panel--wide" role="dialog" aria-modal="true" aria-labelledby="rsvpQ">
+  <div class="gate__panel" role="dialog" aria-modal="true" aria-labelledby="rsvpQ">
     <button class="gate__x" type="button" data-rsvp-close aria-label="Close">
       <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
     </button>
-    <h2 class="gate__q" id="rsvpQ">Pick the time you plan to come.</h2>
-    <p class="gate__sub">We'll text and email you the details with a link to add it to your calendar, plus a reminder before you head over.</p>
-    <div class="rsvp__frame"><iframe title="Open house RSVP" data-src="https://api.leadconnectorhq.com/widget/booking/y1IXVaTYvxTaW1nem7wN" id="y1IXVaTYvxTaW1nem7wN_rsvp" scrolling="no"></iframe></div>
+    <div class="gate__step" data-step="day">
+      <h2 class="gate__q" id="rsvpQ">Which day are you coming?</h2>
+      <div class="gate__answers">
+        <button class="gate__a gate__a--day" type="button" data-day="sat"><b>Saturday, Oct 24</b><span>12 to 3 PM</span></button>
+        <button class="gate__a gate__a--day" type="button" data-day="sun"><b>Sunday, Oct 25</b><span>1 to 3 PM</span></button>
+      </div>
+    </div>
+    <div class="gate__step" data-step="form" hidden>
+      <h2 class="gate__q" data-rsvp-title></h2>
+      <p class="gate__sub">Leave your details to save your spot. Next you can add it to your calendar.</p>
+      <button class="gate__back" type="button" data-rsvp-back>Change day</button>
+      <div class="rsvp__frame"><iframe title="Open house RSVP" data-src="https://api.leadconnectorhq.com/widget/form/3ogvjjjgqBClsWzk073m"
+        id="inline-3ogvjjjgqBClsWzk073m" data-layout="{'id':'INLINE'}" data-trigger-type="alwaysShow" data-trigger-value=""
+        data-activation-type="alwaysActivated" data-activation-value="" data-deactivation-type="neverDeactivate" data-deactivation-value=""
+        data-form-name="1057 Bond Open House RSVP" data-layout-iframe-id="inline-3ogvjjjgqBClsWzk073m" data-form-id="3ogvjjjgqBClsWzk073m"
+        data-cookie-consent="false"></iframe></div>
+    </div>
   </div>
 </div>
 

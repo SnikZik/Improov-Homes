@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script>
+/* GHL may load this page inside the form's iframe; lift it to the full window first */
+if (window.top !== window.self) { try { window.top.location.replace(window.location.href); } catch (e) { /* cross origin, stay framed */ } }
+</script>
+
+<!-- Meta Pixel Code (top window only, so a framed copy never double counts) -->
+<script>
+if (window.top === window.self) {
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window,document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '309890672012145');
+fbq('track', 'PageView');
+}
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=309890672012145&ev=PageView&noscript=1"
+/></noscript>
+<!-- End Meta Pixel Code -->
+<title>You're on the list | Open House at 1057 Bond St | Improov Homes</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#0F1512">
+<link rel="stylesheet" href="oh.css">
+<style>
+body{padding-bottom:0}
+.thx{min-height:100svh;display:flex;flex-direction:column;background:var(--dark);color:#fff}
+.thx__body{flex:1;display:flex;flex-direction:column;justify-content:center;padding-top:56px;padding-bottom:48px}
+.thx h1{margin-top:20px;font-size:clamp(34px,9vw,54px);font-weight:700;line-height:1.05;letter-spacing:-.035em;text-wrap:balance}
+.thx__when{margin-top:14px;font-size:19px;line-height:1.5;color:#D7DED9}
+.thx__note{margin-top:22px;font-size:16.5px;line-height:1.55;color:#AEB9B2;max-width:46ch}
+.thx__cal{margin-top:30px;display:grid;gap:12px;max-width:420px}
+.thx__cal .btn{width:100%}
+.thx__both{margin-top:30px;display:grid;gap:22px;max-width:420px}
+.thx__both p{font-weight:700;margin-bottom:10px}
+.thx__both .thx__cal{margin-top:0}
+.thx__ask{margin-top:36px;font-size:16px;color:#AEB9B2}
+.thx__ask a{color:#fff;font-weight:700;white-space:nowrap}
+.thx__back{display:inline-block;margin-top:18px;color:#9CB5A8;font-weight:600}
+.thx .foot{background:var(--dark);border-top:1px solid rgba(255,255,255,.08);color:#8E9A93}
+@media (min-width:900px){.thx__body{padding-top:80px;padding-bottom:80px}}
+</style>
+</head>
+<body>
+
+<div class="thx">
+  <main class="thx__body wrap wrap--narrow">
+    <p class="pill">You're on the list</p>
+    <h1 data-thx-title>See you at the open house</h1>
+    <p class="thx__when" data-thx-when>1057 Bond St, Elizabeth, NJ 07201</p>
+    <p class="thx__note">Thanks. We have your details. Add it to your calendar so you don't miss it.</p>
+
+    <!-- one day picked: one pair of buttons -->
+    <div class="thx__cal" data-thx-one hidden>
+      <a class="btn btn--call" href="#" data-cal-primary></a>
+      <a class="btn btn--ghostLight" href="#" data-cal-secondary></a>
+    </div>
+
+    <!-- no day remembered (private browsing): both days -->
+    <div class="thx__both" data-thx-both hidden>
+      <div><p>Saturday, Oct 24, 12 to 3 PM</p><div class="thx__cal" data-both="sat"></div></div>
+      <div><p>Sunday, Oct 25, 1 to 3 PM</p><div class="thx__cal" data-both="sun"></div></div>
+    </div>
+
+    <p class="thx__ask">Questions before you come? Call or text <a href="tel:+15513241057" data-ask="call">(551) 324-1057</a></p>
+    <a class="thx__back" href="./">Back to the house</a>
+  </main>
+
+  <footer class="foot">
+    <div class="wrap wrap--narrow">
+      <div class="foot__row">
+        <span class="eho" role="img" aria-label="Equal Housing Opportunity">
+          <svg viewBox="0 0 64 64" width="40" height="40" aria-hidden="true"><path d="M4 30 32 10l28 20" fill="none" stroke="currentColor" stroke-width="4"/><path d="M11 30v22h42V30" fill="none" stroke="currentColor" stroke-width="4"/><rect x="22" y="33" width="20" height="5" fill="currentColor"/><rect x="22" y="43" width="20" height="5" fill="currentColor"/></svg>
+          <span class="eho__t">Equal Housing<br>Opportunity</span>
+        </span>
+        <p class="foot__brand">Improov Homes, Licensed Real Estate Broker (New Jersey) &middot; Office (973) 743-9333 &middot; Property at 1057 Bond St, Elizabeth, NJ</p>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<script>
+/* ============================================================
+   Thank you page after the GHL RSVP form. The day comes from the
+   popup (sessionStorage "oh_day"). Calendar links for each day are below.
+   ============================================================ */
+const DAYS = {
+  sat: { title: 'See you Saturday, Oct 24', when: '12 to 3 PM at 1057 Bond St, Elizabeth, NJ 07201',
+         ics: 'open-house-sat.ics', start: '20261024T120000', end: '20261024T150000', label: 'Saturday, Oct 24, 12 to 3 PM' },
+  sun: { title: 'See you Sunday, Oct 25', when: '1 to 3 PM at 1057 Bond St, Elizabeth, NJ 07201',
+         ics: 'open-house-sun.ics', start: '20261025T130000', end: '20261025T150000', label: 'Sunday, Oct 25, 1 to 3 PM' }
+};
+const PAGE_ID = 'bond-street-1057-open-house';
+const read = k => { try { return sessionStorage.getItem(k); } catch (e) { return null; } };
+const write = (k, v) => { try { sessionStorage.setItem(k, v); } catch (e) { /* private mode */ } };
+const track = (event, params = {}) => {
+  try {
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ event, page: PAGE_ID, ...params });
+    if (typeof window.gtag === 'function') window.gtag('event', event, params);
+    if (typeof window.fbq === 'function') window.fbq('trackCustom', event, params);
+    if (/[?&]lp_debug=1(&|$)/.test(location.search)) console.log('[track]', event, params);
+  } catch (e) { /* tracking must never break the page */ }
+};
+const google = d => 'https://calendar.google.com/calendar/render?action=TEMPLATE'
+  + '&text=' + encodeURIComponent('Open house at 1057 Bond St, Elizabeth NJ')
+  + '&dates=' + d.start + '/' + d.end + '&ctz=America/New_York'
+  + '&location=' + encodeURIComponent('1057 Bond St, Elizabeth, NJ 07201')
+  + '&details=' + encodeURIComponent(d.label + '. Legal two family, renovated in 2026, now $899,000. Questions? Call or text Improov Homes at (551) 324-1057.');
+const android = /android/i.test(navigator.userAgent);
+const calButtons = (d, day) => {
+  // Android opens Google Calendar; iPhone, Mac and Outlook take the .ics file
+  const g = { href: google(d), text: 'Add to Google Calendar', kind: 'google', blank: true };
+  const i = { href: d.ics, text: android ? 'Apple or Outlook calendar' : 'Add to my calendar', kind: 'ics', blank: false };
+  return android ? [g, i] : [i, { ...g, text: 'Google Calendar' }];
+};
+const wire = (a, b, day) => {
+  a.href = b.href; a.textContent = b.text;
+  if (b.blank) { a.target = '_blank'; a.rel = 'noopener'; }
+  a.addEventListener('click', () => track('CalendarAdd', { day, via: b.kind }));
+};
+
+if (window.top === window.self) {
+  const day = read('oh_day');
+  const d = DAYS[day];
+  if (d) {
+    document.querySelector('[data-thx-title]').textContent = d.title;
+    document.querySelector('[data-thx-when]').textContent = d.when;
+    const [p, s] = calButtons(d, day);
+    wire(document.querySelector('[data-cal-primary]'), p, day);
+    wire(document.querySelector('[data-cal-secondary]'), s, day);
+    document.querySelector('[data-thx-one]').hidden = false;
+  } else {
+    document.querySelectorAll('[data-both]').forEach(box => {
+      const k = box.dataset.both;
+      calButtons(DAYS[k], k).forEach((b, n) => {
+        const a = document.createElement('a');
+        a.className = 'btn ' + (n ? 'btn--ghostLight' : 'btn--call');
+        wire(a, b, k); box.appendChild(a);
+      });
+    });
+    document.querySelector('[data-thx-both]').hidden = false;
+  }
+  // count each RSVP once, even if the page is reloaded
+  if (!read('oh_booked')) {
+    write('oh_booked', '1');
+    const params = { day: day || 'unknown', location: read('oh_loc') || 'unknown' };
+    track('RSVPBooked', params);
+    try { if (typeof window.fbq === 'function') window.fbq('track', 'Schedule', params); } catch (e) { /* ignore */ }
+  }
+  document.querySelector('[data-ask]').addEventListener('click', () => {
+    track('CallButtonClick', { location: 'thanks', via: 'call' });
+    try { if (typeof window.fbq === 'function') window.fbq('track', 'Contact', { location: 'thanks', via: 'call' }); } catch (e) { /* ignore */ }
+  });
+}
+</script>
+</body>
+</html>

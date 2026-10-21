@@ -14,7 +14,13 @@ const phoneConfig = {
    After the last one ends the page switches itself: dates and "Add to
    calendar" go away and it asks for a private showing instead. */
 const openHouse = {
-  endsAt: '2026-10-25T15:00:00-04:00'
+  endsAt: '2026-10-25T15:00:00-04:00',
+  // the RSVP popup offers only these two; a day drops out once it is over.
+  // "value" is what lands in the GHL form (hidden field open_house_day).
+  days: {
+    sat: { title: 'Saturday, Oct 24, 12 to 3 PM', value: 'Saturday Oct 24, 12 to 3 PM', endsAt: '2026-10-24T15:00:00-04:00' },
+    sun: { title: 'Sunday, Oct 25, 1 to 3 PM', value: 'Sunday Oct 25, 1 to 3 PM', endsAt: '2026-10-25T15:00:00-04:00' }
+  }
 };
 
 /* ---------- 3. ANALYTICS ---------- */
@@ -26,7 +32,7 @@ const PAGE_ID = 'bond-street-1057-open-house';
      LandingPageView, ScrollDepth, SectionView,
      CallQuestionOpen, CallQuestionAnswer (interest: buy | rto),
      CallButtonClick (+ Meta 'Contact', with the answer), TextButtonClick (+ Meta 'Contact'),
-     RSVPOpen, RSVPBooked (+ Meta 'Schedule'), VideoPlay, VideoProgress, VideoComplete
+     RSVPOpen, RSVPDay (day: sat | sun), RSVPBooked (+ Meta 'Schedule', fired on thanks.html), VideoPlay, VideoProgress, VideoComplete
    ?lp_debug=1 prints every event.
    ============================================================ */
 (function initGA4() {
@@ -193,48 +199,56 @@ function wireVideo() {
   }
 }
 
-/* RSVP: the GHL booking calendar in a popup. The visitor picks a time and fills in
-   Imbar's open house form; GHL texts and emails them the details with calendar links
-   and a reminder, and alerts Roi, Imbar and Snir. The iframe and GHL's resize script
-   load only on first open, so nothing third-party slows the page. */
+/* RSVP: two big buttons (Saturday / Sunday), then Imbar's open house form from GHL with
+   the chosen day in a hidden field. GHL emails Roi, Imbar and Snir on every submission and
+   sends the visitor to thanks.html, which offers the calendar links and fires RSVPBooked.
+   The form and GHL's resize script load only once a day is picked. */
 function wireRsvp() {
   const gate = document.getElementById('rsvpGate');
   if (!gate) return;
   const frame = gate.querySelector('iframe');
-  let loaded = false, booked = false, origin = 'unknown', lastFocus = null;
+  const title = gate.querySelector('[data-rsvp-title]');
+  let scriptLoaded = false, origin = 'unknown', lastFocus = null;
+  const show = step => {
+    gate.querySelectorAll('.gate__step').forEach(s => { s.hidden = s.dataset.step !== step; });
+    gate.querySelector('.gate__panel').scrollTop = 0;
+    if (step !== 'day') return;
+    const first = gate.querySelector('[data-day]:not([hidden])');
+    if (first) setTimeout(() => first.focus({ preventScroll: true }), 30);
+  };
+  const store = (k, v) => { try { sessionStorage.setItem(k, v); } catch (e) { /* private mode */ } };
   const open = loc => {
     origin = loc || 'unknown'; lastFocus = document.activeElement;
-    if (!loaded) {
-      loaded = true;
-      frame.src = frame.dataset.src;
-      const s = document.createElement('script');
-      s.src = 'https://link.msgsndr.com/js/form_embed.js';
-      s.async = true;
-      document.body.appendChild(s);
-    }
+    const now = Date.now();
+    gate.querySelectorAll('[data-day]').forEach(b => { b.hidden = now > Date.parse(openHouse.days[b.dataset.day].endsAt); });
     gate.hidden = false; document.documentElement.classList.add('gate-open');
     track('RSVPOpen', { location: origin });
-    setTimeout(() => gate.querySelector('.gate__x').focus({ preventScroll: true }), 30);
+    show('day');
   };
   const close = () => {
     gate.hidden = true; document.documentElement.classList.remove('gate-open');
     if (lastFocus && lastFocus.focus) lastFocus.focus({ preventScroll: true });
   };
+  gate.querySelectorAll('[data-day]').forEach(b => b.addEventListener('click', () => {
+    const day = b.dataset.day, d = openHouse.days[day];
+    track('RSVPDay', { location: origin, day });
+    store('oh_day', day); store('oh_loc', origin);
+    title.textContent = d.title;
+    const src = frame.dataset.src + '?open_house_day=' + encodeURIComponent(d.value);
+    if (frame.getAttribute('src') !== src) frame.src = src;
+    if (!scriptLoaded) {
+      scriptLoaded = true;
+      const s = document.createElement('script');
+      s.src = 'https://link.msgsndr.com/js/form_embed.js';
+      s.async = true;
+      document.body.appendChild(s);
+    }
+    show('form');
+  }));
+  gate.querySelector('[data-rsvp-back]').addEventListener('click', () => show('day'));
   document.querySelectorAll('[data-cal]').forEach(el => el.addEventListener('click', e => { e.preventDefault(); open(el.dataset.loc); }));
   gate.querySelectorAll('[data-rsvp-close]').forEach(el => el.addEventListener('click', close));
   document.addEventListener('keydown', e => { if (!gate.hidden && e.key === 'Escape') close(); });
-  // GHL posts messages from the widget; count a finished booking once
-  window.addEventListener('message', e => {
-    if (!/leadconnectorhq\.com|msgsndr\.com/.test(e.origin || '')) return;
-    let txt = '';
-    try { txt = typeof e.data === 'string' ? e.data : JSON.stringify(e.data); } catch (err) { return; }
-    if (window.LP_DEBUG) console.log('[ghl]', txt.slice(0, 200));
-    if (!booked && /booking[-_ ]?(complete|success|confirmed)|appointment[-_ ]?(booked|created)|thank/i.test(txt)) {
-      booked = true;
-      track('RSVPBooked', { location: origin });
-      try { if (typeof window.fbq === 'function') window.fbq('track', 'Schedule', { ...attribution, location: origin }); } catch (err) { /* ignore */ }
-    }
-  });
 }
 
 /* the bottom bar stays out of the way while the hero's own buttons are on screen */

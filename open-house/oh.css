@@ -141,9 +141,13 @@ p,li{text-wrap:pretty}
 .gate__step .btn{margin-top:22px}
 .btn--block{width:100%}
 button.btn{cursor:pointer;font-family:inherit}
-.gate__panel--wide{max-width:760px}
-.rsvp__frame{margin:18px -6px 0;min-height:560px}
-.rsvp__frame iframe{display:block;width:100%;min-height:560px;border:0;overflow:hidden}
+.gate__a--day{min-height:76px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:19px}
+.gate__a--day b{font-weight:700}
+.gate__a--day span{font-size:15.5px;font-weight:500;color:var(--ink-2)}
+.gate__back{margin-top:10px;padding:6px 0;border:0;background:none;font:inherit;font-size:15px;font-weight:600;color:var(--accent);
+  text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.rsvp__frame{margin:10px -10px 0;min-height:640px}
+.rsvp__frame iframe{display:block;width:100%;min-height:640px;border:0}
 .gate-open,.gate-open body{overflow:hidden}
 @keyframes gateUp{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
 
