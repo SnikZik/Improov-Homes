@@ -6,8 +6,7 @@
 /* ---------- 1. PHONE (same tracking line as the ads) ---------- */
 const phoneConfig = {
   raw: '+15513241057',
-  display: '(551) 324-1057',
-  textBody: "Hi, I'd like to come to the open house at 1057 Bond St."
+  display: '(551) 324-1057'
 };
 
 /* ---------- 2. OPEN HOUSE TIMES (Eastern) ----------
@@ -31,8 +30,10 @@ const PAGE_ID = 'bond-street-1057-open-house';
    TRACKING
      LandingPageView, ScrollDepth, SectionView,
      CallQuestionOpen, CallQuestionAnswer (interest: buy | rto),
-     CallButtonClick (+ Meta 'Contact', with the answer), TextButtonClick (+ Meta 'Contact'),
-     RSVPOpen, RSVPDay (day: sat | sun), RSVPBooked (+ Meta 'Schedule', fired on thanks.html), VideoPlay, VideoProgress, VideoComplete
+     CallButtonClick (+ Meta 'Lead', lead_type call, with the answer),
+     RSVPOpen, RSVPDay (day: sat | sun), RSVPBooked (+ Meta 'Lead', lead_type rsvp, fired on thanks.html), VideoPlay, VideoProgress, VideoComplete
+   Meta pixel 309890672012145: the campaign optimizes for the standard 'Lead' event.
+   A call tap counts once per visit, so repeat taps do not inflate the lead count.
    ?lp_debug=1 prints every event.
    ============================================================ */
 (function initGA4() {
@@ -73,8 +74,13 @@ const track = (event, params = {}) => {
     if (window.LP_DEBUG) console.log('[track]', event, full);
   } catch (e) { /* tracking must never break the page */ }
 };
-const contact = (params) => {
-  try { if (typeof window.fbq === 'function') window.fbq('track', 'Contact', { ...attribution, ...params }); } catch (e) { /* ignore */ }
+const lead = (type, params) => {
+  try {
+    const key = 'oh_lead_' + type;
+    if (sessionStorage.getItem(key)) return;
+    sessionStorage.setItem(key, '1');
+  } catch (e) { /* private mode: count it anyway */ }
+  try { if (typeof window.fbq === 'function') window.fbq('track', 'Lead', { lead_type: type, content_name: '1057 Bond open house', ...attribution, ...params }); } catch (e) { /* ignore */ }
 };
 
 /* ============================================================
@@ -110,6 +116,7 @@ function wireContacts() {
   };
   document.querySelectorAll('[data-call]').forEach(el => {
     el.setAttribute('href', '#call');
+    el.setAttribute('aria-haspopup', 'dialog');
     el.addEventListener('click', e => { e.preventDefault(); open(el.dataset.loc); });
   });
   gate.querySelectorAll('[data-answer]').forEach(b => b.addEventListener('click', () => {
@@ -122,7 +129,7 @@ function wireContacts() {
   tel.setAttribute('href', 'tel:' + phoneConfig.raw);
   tel.addEventListener('click', () => {
     const p = { location: origin, via: 'call', interest: answer, ...base() };
-    track('CallButtonClick', p); contact(p);
+    track('CallButtonClick', p); lead('call', p);
   });
   gate.querySelectorAll('[data-gate-close]').forEach(el => el.addEventListener('click', close));
   document.addEventListener('keydown', e => {
@@ -136,12 +143,6 @@ function wireContacts() {
     }
   });
 
-  // "?&body=" is the form both iOS and Android read
-  const sms = 'sms:' + phoneConfig.raw + '?&body=' + encodeURIComponent(phoneConfig.textBody);
-  document.querySelectorAll('[data-text]').forEach(el => {
-    el.setAttribute('href', sms);
-    el.addEventListener('click', () => { const p = { location: el.dataset.loc, via: 'text', ...base() }; track('TextButtonClick', p); contact(p); });
-  });
   document.querySelectorAll('[data-phone-text]').forEach(el => { el.textContent = phoneConfig.display; });
 }
 
@@ -232,9 +233,11 @@ function wireRsvp() {
   gate.querySelectorAll('[data-day]').forEach(b => b.addEventListener('click', () => {
     const day = b.dataset.day, d = openHouse.days[day];
     track('RSVPDay', { location: origin, day });
-    store('oh_day', day); store('oh_loc', origin);
+    store('oh_day', day); store('oh_loc', origin); store('oh_utm', JSON.stringify(attribution));
     title.textContent = d.title;
-    const src = frame.dataset.src + '?open_house_day=' + encodeURIComponent(d.value);
+    // the ad's UTM tags ride along so GHL files the RSVP contact under the right ad
+    const q = new URLSearchParams({ open_house_day: d.value, ...attribution });
+    const src = frame.dataset.src + '?' + q.toString();
     if (frame.getAttribute('src') !== src) frame.src = src;
     if (!scriptLoaded) {
       scriptLoaded = true;
@@ -246,21 +249,56 @@ function wireRsvp() {
     show('form');
   }));
   gate.querySelector('[data-rsvp-back]').addEventListener('click', () => show('day'));
-  document.querySelectorAll('[data-cal]').forEach(el => el.addEventListener('click', e => { e.preventDefault(); open(el.dataset.loc); }));
+  // Tab out of the GHL iframe never reaches our keydown handler, so focus lands on these instead
+  const focusables = () => [...gate.querySelectorAll('button, a, iframe')].filter(n => n.offsetParent !== null);
+  gate.querySelector('[data-trap-end]').addEventListener('focus', () => gate.querySelector('.gate__x').focus());
+  gate.querySelector('[data-trap-start]').addEventListener('focus', () => { const f = focusables(); f[f.length - 1].focus(); });
+  document.querySelectorAll('[data-cal]').forEach(el => {
+    el.setAttribute('aria-haspopup', 'dialog');
+    el.addEventListener('click', e => { e.preventDefault(); open(el.dataset.loc); });
+  });
   gate.querySelectorAll('[data-rsvp-close]').forEach(el => el.addEventListener('click', close));
-  document.addEventListener('keydown', e => { if (!gate.hidden && e.key === 'Escape') close(); });
+  document.addEventListener('keydown', e => {
+    if (gate.hidden) return;
+    if (e.key === 'Escape') return close();
+    if (e.key === 'Tab') {
+      const f = [...gate.querySelectorAll('button, a, iframe')].filter(n => n.offsetParent !== null);
+      if (!f.length) return;
+      if (e.shiftKey && document.activeElement === f[0]) { e.preventDefault(); f[f.length - 1].focus(); }
+      else if (!e.shiftKey && document.activeElement === f[f.length - 1]) { e.preventDefault(); f[0].focus(); }
+    }
+  });
 }
 
-/* the bottom bar stays out of the way while the hero's own buttons are on screen */
+/* hero loop: silent, plays only while on screen, and stays on the poster for reduced motion */
+function wireHeroVideo() {
+  const v = document.getElementById('heroVideo');
+  if (!v) return;
+  if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) { v.removeAttribute('autoplay'); v.pause(); return; }
+  v.muted = true;
+  const play = () => v.play().catch(() => { /* autoplay blocked: the poster stays */ });
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(es => es.forEach(e => (e.isIntersecting ? play() : v.pause())), { threshold: 0.1 }).observe(v);
+  } else play();
+}
+
+/* the bottom bar (RSVP left, Call right) ships hidden and stays out of the way while the
+   hero's own buttons are fully on screen; anywhere else it is there. It only starts to
+   animate after the first check, so a page load never shows it sliding away. */
 function wireSticky() {
   const bar = document.getElementById('sticky');
   const heroCtas = document.querySelector('.hero .ctas');
-  if (!bar || !heroCtas || !('IntersectionObserver' in window)) return;
-  new IntersectionObserver(es => es.forEach(e => bar.classList.toggle('is-away', e.isIntersecting)), { threshold: 0 }).observe(heroCtas);
+  if (!bar) return;
+  if (!heroCtas || !('IntersectionObserver' in window)) { bar.classList.remove('is-away'); return; }
+  new IntersectionObserver(es => es.forEach(e => {
+    bar.classList.toggle('is-away', e.intersectionRatio >= 0.98);
+    if (!bar.classList.contains('is-ready')) requestAnimationFrame(() => bar.classList.add('is-ready'));
+  }), { threshold: [0, 0.98, 1] }).observe(heroCtas);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   applySchedule();
+  wireHeroVideo();
   wireSticky();
   wireRsvp();
   wireContacts();
