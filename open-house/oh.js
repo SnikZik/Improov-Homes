@@ -151,6 +151,11 @@ function applySchedule() {
   document.querySelectorAll('[data-when="before"]').forEach(el => { el.hidden = over; });
   document.querySelectorAll('[data-when="after"]').forEach(el => { el.hidden = !over; });
   document.documentElement.classList.toggle('oh-over', over);
+  // a day that is over drops out of the date lists (the popup does the same)
+  document.querySelectorAll('li[data-day]').forEach(li => { li.hidden = Date.now() > Date.parse(openHouse.days[li.dataset.day].endsAt); });
+  // the tour poster has the open house dates on it
+  const tour = document.getElementById('tourVideo');
+  if (over && tour) tour.poster = 'img/hero-poster.jpg';
 }
 
 function wireScroll() {
@@ -213,7 +218,7 @@ function wireRsvp() {
   const show = step => {
     gate.querySelectorAll('.gate__step').forEach(s => { s.hidden = s.dataset.step !== step; });
     gate.querySelector('.gate__panel').scrollTop = 0;
-    if (step !== 'day') return;
+    if (step !== 'day') { setTimeout(() => gate.querySelector('[data-rsvp-back]').focus({ preventScroll: true }), 30); return; }
     const first = gate.querySelector('[data-day]:not([hidden])');
     if (first) setTimeout(() => first.focus({ preventScroll: true }), 30);
   };
@@ -289,11 +294,22 @@ function wireSticky() {
   const bar = document.getElementById('sticky');
   const heroCtas = document.querySelector('.hero .ctas');
   if (!bar) return;
+  const visitCtas = document.querySelector('#visit .ctas');
   if (!heroCtas || !('IntersectionObserver' in window)) { bar.classList.remove('is-away'); return; }
-  new IntersectionObserver(es => es.forEach(e => {
-    bar.classList.toggle('is-away', e.intersectionRatio >= 0.98);
+  // also out of the way while the visit section's own Call / RSVP pair is on screen
+  let heroIn = false, visitIn = false;
+  new IntersectionObserver(es => {
+    es.forEach(e => {
+      if (e.target === heroCtas) heroIn = e.intersectionRatio >= 0.98;
+      else visitIn = e.isIntersecting;
+    });
+    bar.classList.toggle('is-away', heroIn || visitIn);
     if (!bar.classList.contains('is-ready')) requestAnimationFrame(() => bar.classList.add('is-ready'));
-  }), { threshold: [0, 0.98, 1] }).observe(heroCtas);
+  }, { threshold: [0, 0.98, 1] }).observe(heroCtas);
+  if (visitCtas) new IntersectionObserver(es => es.forEach(e => {
+    visitIn = e.isIntersecting;
+    bar.classList.toggle('is-away', heroIn || visitIn);
+  }), { threshold: 0 }).observe(visitCtas);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
