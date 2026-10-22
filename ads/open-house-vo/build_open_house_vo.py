@@ -13,7 +13,7 @@ import subprocess, sys, pathlib, shutil, re, importlib.util
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 HERE = pathlib.Path(__file__).resolve().parent
-VO = pathlib.Path(sys.argv[1]) if len(sys.argv) > 1 else HERE / 'vo-amanda.mp3'
+VO = pathlib.Path(sys.argv[1]) if len(sys.argv) > 1 else HERE / 'vo-gia.mp3'
 WALK = pathlib.Path('/Users/s/Downloads/WhatsApp Video 2026-10-21 at 16.22.19.mp4')
 WORK = pathlib.Path('/private/tmp/claude-501/-Users-s/380d5559-9905-4a9f-8ab1-c17ecde0c63a/scratchpad/ohvo/work')
 OUT = HERE

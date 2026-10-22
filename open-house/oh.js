@@ -10,15 +10,14 @@ const phoneConfig = {
 };
 
 /* ---------- 2. OPEN HOUSE TIMES (Eastern) ----------
-   After the last one ends the page switches itself: dates and "Add to
-   calendar" go away and it asks for a private showing instead. */
+   After the last one ends the page switches itself: the dates go away and it
+   asks for a private showing instead. */
 const openHouse = {
   endsAt: '2026-10-25T15:00:00-04:00',
-  // the RSVP popup offers only these two; a day drops out once it is over.
-  // "value" is what lands in the GHL form (hidden field open_house_day).
+  // each day drops out of the date lists once it is over
   days: {
-    sat: { title: 'Saturday, Oct 24, 12 to 3 PM', value: 'Saturday Oct 24, 12 to 3 PM', endsAt: '2026-10-24T15:00:00-04:00' },
-    sun: { title: 'Sunday, Oct 25, 1 to 3 PM', value: 'Sunday Oct 25, 1 to 3 PM', endsAt: '2026-10-25T15:00:00-04:00' }
+    sat: { endsAt: '2026-10-24T15:00:00-04:00' },
+    sun: { endsAt: '2026-10-25T15:00:00-04:00' }
   }
 };
 
@@ -31,7 +30,7 @@ const PAGE_ID = 'bond-street-1057-open-house';
      LandingPageView, ScrollDepth, SectionView,
      CallQuestionOpen, CallQuestionAnswer (open_to_nj yes | no, then interest buy | rto), CallBlocked (not open to NJ),
      CallButtonClick (+ Meta 'Lead', lead_type call, with the answer),
-     RSVPOpen, RSVPDay (day: sat | sun), RSVPBooked (+ Meta 'Lead', lead_type rsvp, fired on thanks.html), VideoPlay, VideoProgress, VideoComplete
+     VideoPlay, VideoProgress, VideoComplete
    Meta pixel 309890672012145: the campaign optimizes for the standard 'Lead' event.
    A call tap counts once per visit, so repeat taps do not inflate the lead count.
    ?lp_debug=1 prints every event.
@@ -97,6 +96,7 @@ function wireContacts() {
   let origin = 'unknown', answer = null, armedAt = 0, lastFocus = null;
   const SUB = {
     buy: 'Ask about the $899,000 price and the open house this weekend.',
+    buyAfter: 'Ask about the $899,000 price and a private showing.',
     rto: 'Ask for the written rent-to-own terms for the first-floor unit and lower level.'
   };
   const show = step => {
@@ -131,7 +131,7 @@ function wireContacts() {
     if (Date.now() < armedAt) return;
     answer = b.dataset.answer;
     track('CallQuestionAnswer', { location: origin, question: 'interest', interest: answer });
-    sub.textContent = SUB[answer];
+    sub.textContent = (answer === 'buy' && document.documentElement.classList.contains('oh-over')) ? SUB.buyAfter : SUB[answer];
     show('call');
   }));
   tel.setAttribute('href', 'tel:' + phoneConfig.raw);
@@ -159,7 +159,7 @@ function applySchedule() {
   document.querySelectorAll('[data-when="before"]').forEach(el => { el.hidden = over; });
   document.querySelectorAll('[data-when="after"]').forEach(el => { el.hidden = !over; });
   document.documentElement.classList.toggle('oh-over', over);
-  // a day that is over drops out of the date lists (the popup does the same)
+  // a day that is over drops out of the date lists
   document.querySelectorAll('li[data-day]').forEach(li => { li.hidden = Date.now() > Date.parse(openHouse.days[li.dataset.day].endsAt); });
   // the tour poster has the open house dates on it
   const tour = document.getElementById('tourVideo');
@@ -213,76 +213,6 @@ function wireVideo() {
   }
 }
 
-/* RSVP: two big buttons (Saturday / Sunday), then Imbar's open house form from GHL with
-   the chosen day in a hidden field. GHL emails Roi, Imbar and Snir on every submission and
-   sends the visitor to thanks.html, which offers the calendar links and fires RSVPBooked.
-   The form and GHL's resize script load only once a day is picked. */
-function wireRsvp() {
-  const gate = document.getElementById('rsvpGate');
-  if (!gate) return;
-  const frame = gate.querySelector('iframe');
-  const title = gate.querySelector('[data-rsvp-title]');
-  let scriptLoaded = false, origin = 'unknown', lastFocus = null;
-  const show = step => {
-    gate.querySelectorAll('.gate__step').forEach(s => { s.hidden = s.dataset.step !== step; });
-    gate.querySelector('.gate__panel').scrollTop = 0;
-    if (step !== 'day') { setTimeout(() => gate.querySelector('[data-rsvp-back]').focus({ preventScroll: true }), 30); return; }
-    const first = gate.querySelector('[data-day]:not([hidden])');
-    if (first) setTimeout(() => first.focus({ preventScroll: true }), 30);
-  };
-  const store = (k, v) => { try { sessionStorage.setItem(k, v); } catch (e) { /* private mode */ } };
-  const open = loc => {
-    origin = loc || 'unknown'; lastFocus = document.activeElement;
-    const now = Date.now();
-    gate.querySelectorAll('[data-day]').forEach(b => { b.hidden = now > Date.parse(openHouse.days[b.dataset.day].endsAt); });
-    gate.hidden = false; document.documentElement.classList.add('gate-open');
-    track('RSVPOpen', { location: origin });
-    show('day');
-  };
-  const close = () => {
-    gate.hidden = true; document.documentElement.classList.remove('gate-open');
-    if (lastFocus && lastFocus.focus) lastFocus.focus({ preventScroll: true });
-  };
-  gate.querySelectorAll('[data-day]').forEach(b => b.addEventListener('click', () => {
-    const day = b.dataset.day, d = openHouse.days[day];
-    track('RSVPDay', { location: origin, day });
-    store('oh_day', day); store('oh_loc', origin); store('oh_utm', JSON.stringify(attribution));
-    title.textContent = d.title;
-    // the ad's UTM tags ride along so GHL files the RSVP contact under the right ad
-    const q = new URLSearchParams({ open_house_day: d.value, ...attribution });
-    const src = frame.dataset.src + '?' + q.toString();
-    if (frame.getAttribute('src') !== src) frame.src = src;
-    if (!scriptLoaded) {
-      scriptLoaded = true;
-      const s = document.createElement('script');
-      s.src = 'https://link.msgsndr.com/js/form_embed.js';
-      s.async = true;
-      document.body.appendChild(s);
-    }
-    show('form');
-  }));
-  gate.querySelector('[data-rsvp-back]').addEventListener('click', () => show('day'));
-  // Tab out of the GHL iframe never reaches our keydown handler, so focus lands on these instead
-  const focusables = () => [...gate.querySelectorAll('button, a, iframe')].filter(n => n.offsetParent !== null);
-  gate.querySelector('[data-trap-end]').addEventListener('focus', () => gate.querySelector('.gate__x').focus());
-  gate.querySelector('[data-trap-start]').addEventListener('focus', () => { const f = focusables(); f[f.length - 1].focus(); });
-  document.querySelectorAll('[data-cal]').forEach(el => {
-    el.setAttribute('aria-haspopup', 'dialog');
-    el.addEventListener('click', e => { e.preventDefault(); open(el.dataset.loc); });
-  });
-  gate.querySelectorAll('[data-rsvp-close]').forEach(el => el.addEventListener('click', close));
-  document.addEventListener('keydown', e => {
-    if (gate.hidden) return;
-    if (e.key === 'Escape') return close();
-    if (e.key === 'Tab') {
-      const f = [...gate.querySelectorAll('button, a, iframe')].filter(n => n.offsetParent !== null);
-      if (!f.length) return;
-      if (e.shiftKey && document.activeElement === f[0]) { e.preventDefault(); f[f.length - 1].focus(); }
-      else if (!e.shiftKey && document.activeElement === f[f.length - 1]) { e.preventDefault(); f[0].focus(); }
-    }
-  });
-}
-
 /* hero loop: silent, plays only while on screen, and stays on the poster for reduced motion */
 function wireHeroVideo() {
   const v = document.getElementById('heroVideo');
@@ -295,7 +225,7 @@ function wireHeroVideo() {
   } else play();
 }
 
-/* the bottom bar (RSVP left, Call right) ships hidden and stays out of the way while the
+/* the bottom bar (one Call button) ships hidden and stays out of the way while the
    hero's own buttons are fully on screen; anywhere else it is there. It only starts to
    animate after the first check, so a page load never shows it sliding away. */
 function wireSticky() {
@@ -304,12 +234,11 @@ function wireSticky() {
   if (!bar) return;
   const visitCtas = document.querySelector('#visit .ctas');
   if (!heroCtas || !('IntersectionObserver' in window)) { bar.classList.remove('is-away'); return; }
-  // also out of the way while the visit section's own Call / RSVP pair is on screen
+  // also out of the way while the visit section's own Call button is on screen
   let heroIn = false, visitIn = false;
   new IntersectionObserver(es => {
     es.forEach(e => {
-      if (e.target === heroCtas) heroIn = e.intersectionRatio >= 0.98;
-      else visitIn = e.isIntersecting;
+      heroIn = e.intersectionRatio >= 0.98;
     });
     bar.classList.toggle('is-away', heroIn || visitIn);
     if (!bar.classList.contains('is-ready')) requestAnimationFrame(() => bar.classList.add('is-ready'));
@@ -324,7 +253,6 @@ document.addEventListener('DOMContentLoaded', () => {
   applySchedule();
   wireHeroVideo();
   wireSticky();
-  wireRsvp();
   wireContacts();
   wireScroll();
   wireVideo();
