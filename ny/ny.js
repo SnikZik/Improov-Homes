@@ -8,7 +8,9 @@
 /* ---------- 1. PHONE ----------
    NY tracking number. Until Imbar's NY line is in, this falls back to the
    main campaign number so the page still works; the CallButtonClick events
-   are tagged page=bond-street-1057-ny either way. */
+   are tagged page=bond-street-1057-ny either way.
+   Snir's rule (Oct 2026): this number is shown and dialed only in the
+   qualifier's last step, after both questions. Never put it anywhere else. */
 const phoneConfig = {
   raw: '+15513241057',          // TODO: replace with the dedicated NY number (E.164)
   display: '(551) 324-1057',    // TODO: same number, formatted
@@ -50,11 +52,11 @@ const gateConfig = {
    Checked against GSMLS #4057212, the 2025 tax bill and Improov's own rental
    listings (fact-check run 15 Oct 2026). */
 const subject = {
-  price: 999000,
+  price: 899000,               // cut from $999,000 (Oct 2026)
   downPercent: '3.5%',
-  downPayment: 34965,
+  downPayment: 31465,
   closing: 25000,               // estimate; MLS says the seller will give a concession
-  cashToClose: 60000,
+  cashToClose: 56465,
   beds: 8,
   baths: 5,
   sqft: '2,700',                // MLS; Roee's sheet said 2,800, no source has that
@@ -73,9 +75,9 @@ const loanExample = {
   apr: '',                      // e.g. '7.812%' from the lender, in writing
   rate: '6.875%',
   rateDate: 'Oct 1, 2026',
-  noteAmount: 980906,           // $964,035 base loan + 1.75% upfront MIP
+  noteAmount: 882717,           // $867,535 base loan + 1.75% upfront MIP
   payments: 360,
-  principalInterest: 6444
+  principalInterest: 5799
 };
 const showFinancing = () => Boolean(loanExample.apr) ||
   (/^(localhost|127\.0\.0\.1|\[::1\])$/.test(window.location.hostname) && /[?&]preview_financing=1(&|$)/.test(window.location.search));
@@ -91,14 +93,14 @@ const comparisonConfig = {
     {
       id: 'bond', highlight: true,
       name: '1057 Bond St', area: 'Elizabeth, NJ 07201', status: 'For sale · newly renovated',
-      price: 999000, priceNote: 'list price',
+      price: 899000, priceNote: 'list price',
       layout: '8 bed · 5 bath', layoutNote: 'Two 3 bed / 2 bath units plus a 2 bed / 1 bath bonus area',
       sqft: '2,700 sq ft', parking: '1-car garage + 2-car driveway',
       taxes: 11892, taxesNote: '2025 bill',
       buyerTaxes: 'No mortgage tax', buyerTaxesNote: 'No buyer transfer or mansion tax at this price',
       // financing rows, shown only when loanExample.apr is set
-      down: 34965, closing: 25000, cash: 60000, monthly: 8288,
-      income: 153000, incomeNote: 'Counts 75% of Unit 2’s $2,750 asking rent'
+      down: 31465, closing: 25000, cash: 56465, monthly: 7583,
+      income: 138000, incomeNote: 'Counts 75% of Unit 2’s $2,750 asking rent'
     },
     {
       id: 'laurelton',
@@ -141,7 +143,7 @@ const commuteConfig = [
 
 /* ---------- 8. VIDEO ---------- */
 const videoConfig = {
-  hero: { src: '../videos/web/hero-15sec-open.mp4', poster: '../img/hero-15sec-open-poster.jpg' }
+  hero: { src: '../videos/web/lead-899.mp4', poster: '../videos/web/lead-899-poster.jpg' }   // 9:16 lead with voiceover, new price, no phone number
   // pays-for-itself is not used here: it says "FROM $35,000 DOWN", a Reg Z triggering term
 };
 

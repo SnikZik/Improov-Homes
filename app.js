@@ -4,17 +4,25 @@
    ============================================================ */
 
 /* ---------- 1. PHONE (virtual tracking number) ----------
-   Change here only. Every CTA on the page reads from this. */
+   Change here only. Shown and dialled only inside the call questions popup
+   (#callGate, last step). It must not appear anywhere else on the page. */
 const phoneConfig = {
   raw: '+15513241057',          // virtual tracking number (E.164)
   display: '(551) 324-1057'     // same number, formatted for display
+};
+
+/* Brokerage office line. NJ requires a standalone listing page to show the
+   brokerage's phone number as large as the page's predominant wording. Plain
+   text, not tappable, so it does not bypass the call questions. */
+const officeConfig = {
+  display: '(973) 743-9333'
 };
 
 /* ---------- 2. THE HOUSE AND THE RENT ----------
    Checked against GSMLS #4057212, the 2025 tax bill and Improov's own rental
    listings (fact-check run 15 Oct 2026). */
 const propertyConfig = {
-  price: 999000,
+  price: 899000,                // after the $100,000 price cut, Oct 2026
   taxes: 11892                  // 2025 bill. The $14,144 on Roee's sheet was the 2023 bill
 };
 
@@ -37,33 +45,34 @@ const rentConfig = {
    While no scenario is complete the section shows the price, the taxes and
    the asking rent only, and no financing number reaches the page at all.
    Preview the financing version on localhost with ?preview_financing=1.
-   Effective monthly cost is calculated: monthlyPayment - rentConfig.amount. */
+   Effective monthly cost is calculated: monthlyPayment - rentConfig.amount.
+   A null monthlyPayment shows "[from lender]" and no effective cost. */
 const financingConfig = {
   scenarios: [
     {
       id: 'fha',
       name: 'FHA',
       downPct: '3.5%',
-      downPayment: 34965,         // same figures as the NY page (ny/ny.js)
-      monthlyPayment: 8288,       // P&I + 0.75% annual MIP + 2025 taxes + homeowners insurance
+      downPayment: 31465,         // 3.5% of $899,000; same figures as the NY page (ny/ny.js)
+      monthlyPayment: 7583,       // P&I + 0.75% annual MIP + 2025 taxes + homeowners insurance
       badge: null,
       loan: {
         kind: '30-year fixed FHA',
         apr: '',                  // e.g. '7.812%' from the lender, in writing
         rate: '6.875%',
         rateDate: 'Oct 1, 2026',
-        noteAmount: 980906,       // $964,035 base loan + 1.75% upfront MIP
+        noteAmount: 882717,       // $867,535 base loan + $15,182 (1.75%) upfront MIP
         noteAmountNote: 'including 1.75% upfront mortgage insurance',
         payments: 360,
-        principalInterest: 6444
+        principalInterest: 5799   // 360 payments at 6.875%
       }
     },
     {
       id: 'cra',
       name: 'CRA Conventional',
       downPct: '5%',
-      downPayment: 50000,         // August sheet, not re-checked: replace with the lender's quote
-      monthlyPayment: 6680,       //  together with the APR and the loan terms below
+      downPayment: 44950,         // 5% of $899,000
+      monthlyPayment: null,       // from the lender's written quote, together with the APR and the loan terms below
       badge: 'Best value if you qualify',
       loan: { kind: '', apr: '', rate: '', rateDate: '', noteAmount: null, noteAmountNote: '', payments: 360, principalInterest: null }
     },
@@ -71,8 +80,8 @@ const financingConfig = {
       id: 'conventional',
       name: 'Conventional',
       downPct: '20%',
-      downPayment: 200000,        // August sheet, not re-checked: replace with the lender's quote
-      monthlyPayment: 6608,
+      downPayment: 179800,        // 20% of $899,000
+      monthlyPayment: null,       // from the lender's written quote, together with the APR and the loan terms below
       badge: null,
       loan: { kind: '', apr: '', rate: '', rateDate: '', noteAmount: null, noteAmountNote: '', payments: 360, principalInterest: null }
     }
@@ -80,7 +89,9 @@ const financingConfig = {
 };
 
 const LOAN_FIELDS = ['kind', 'apr', 'rate', 'rateDate', 'noteAmount', 'payments', 'principalInterest'];
-const loanReady = s => Boolean(s.loan) && LOAN_FIELDS.every(k => Boolean(s.loan[k]));
+const isNum = n => typeof n === 'number' && isFinite(n);
+// a card goes live only with its full loan block and its monthly payment
+const loanReady = s => Boolean(s.loan) && LOAN_FIELDS.every(k => Boolean(s.loan[k])) && isNum(s.monthlyPayment);
 const previewFinancing = () =>
   /^(localhost|127\.0\.0\.1|\[::1\])$/.test(window.location.hostname) &&
   /[?&]preview_financing=1(&|$)/.test(window.location.search);
@@ -103,8 +114,9 @@ const disclosure = () => {
 /* ---------- 3b. VIDEO SOURCES ----------
    Posters are optional; without them the first frame is used. */
 const videoConfig = {
-  hero: { src: 'videos/web/hero-15sec-open.mp4', poster: 'img/hero-15sec-open-poster.jpg' } // C1_15sec-open - טוב.mp4
+  hero: { src: 'videos/web/lead-899.mp4', poster: 'videos/web/lead-899-poster.jpg' } // 9:16 lead video with voiceover, new price, no phone number
   // Off the page on purpose, files kept in /videos:
+  //   hero-15sec-open.mp4 (C1) shows the old list price on screen
   //   pays-for-itself.mp4 (A3) says "FROM $35,000 DOWN", a Reg Z triggering term with no APR in the video
   //   almost-a-million.mp4 (B4) says "Built for extended family" (familial status, fair housing)
   //     and "$35,000", "$2,000 / month", "5% down / no PMI" (Reg Z)
@@ -265,6 +277,7 @@ function wireSectionViews() {
 
 /* ---------- helpers ---------- */
 const money = n => '$' + Math.round(n).toLocaleString('en-US');
+const moneyOr = n => (isNum(n) ? money(n) : '[from lender]');
 
 /* ============================================================
    5. PHONE WIRING: every call button opens two questions first
@@ -351,8 +364,12 @@ function wirePhone() {
     } catch (e) { /* tracking must never break the page */ }
   });
 
-  document.querySelectorAll('[data-phone-text]').forEach(el => {
+  // the campaign number is written only inside the popup
+  gate.querySelectorAll('[data-phone-text]').forEach(el => {
     el.textContent = phoneConfig.display;
+  });
+  document.querySelectorAll('[data-office-text]').forEach(el => {
+    el.textContent = officeConfig.display;
   });
 }
 
@@ -363,7 +380,7 @@ const blank = v => v || '[from lender]';
 
 function loanExampleText(s) {
   const L = s.loan;
-  return `Example, to a qualified buyer: ${money(propertyConfig.price)} price, ${money(s.downPayment)} (${s.downPct}) down, ` +
+  return `Example, to a qualified buyer: ${money(propertyConfig.price)} price, ${moneyOr(s.downPayment)} (${s.downPct}) down, ` +
     `${blank(L.kind)} loan of ${L.noteAmount ? money(L.noteAmount) : '[from lender]'}${L.noteAmountNote ? ' ' + L.noteAmountNote : ''}, ` +
     `${L.payments || '[from lender]'} monthly payments of ${L.principalInterest ? money(L.principalInterest) : '[from lender]'} principal and interest ` +
     `at ${blank(L.rate)} interest, ${L.apr || '[APR from lender]'} APR, rate as of ${blank(L.rateDate)}. ` +
@@ -392,7 +409,8 @@ function renderCards() {
     // without a complete lender quote nothing is rendered, not even hidden
     host.hidden = !fin;
     host.innerHTML = shown.map(s => {
-      const effective = s.monthlyPayment - rentConfig.amount;
+      // no monthly payment yet: no effective-cost math, just the placeholder
+      const effective = isNum(s.monthlyPayment) ? money(s.monthlyPayment - rentConfig.amount) : '[from lender]';
       return `
       <article class="card${s.badge ? ' card--best' : ''}">
         ${s.badge ? `<span class="card__badge">${s.badge}</span>` : ''}
@@ -401,11 +419,11 @@ function renderCards() {
         <div class="card__rows">
           <div class="card__row">
             <span class="card__k">Est. down payment</span>
-            <span class="card__v">${money(s.downPayment)}</span>
+            <span class="card__v">${moneyOr(s.downPayment)}</span>
           </div>
           <div class="card__row">
             <span class="card__k">Est. monthly housing payment</span>
-            <span class="card__v">${money(s.monthlyPayment)}</span>
+            <span class="card__v">${moneyOr(s.monthlyPayment)}</span>
           </div>
           <div class="card__row card__row--rent">
             <span class="card__k">${rentConfig.label}<span class="card__ksub">${rentConfig.sub}</span></span>
@@ -414,7 +432,7 @@ function renderCards() {
         </div>
         <div class="card__net">
           <p class="card__net-k">Estimated effective monthly cost</p>
-          <p class="card__net-v">${money(effective)}</p>
+          <p class="card__net-v">${effective}</p>
           <p class="card__net-sub">per month, estimated</p>
         </div>
         <p class="card__loan">${loanExampleText(s)}</p>

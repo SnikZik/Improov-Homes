@@ -3,7 +3,9 @@
    Everything you might change is in the config blocks below.
    ============================================================ */
 
-/* ---------- 1. PHONE (same tracking line as the ads) ---------- */
+/* ---------- 1. PHONE (same tracking line as the ads) ----------
+   Shown and dialable ONLY on the popup's last step, after both questions are answered.
+   No other button on the page carries the number or a tel: link. */
 const phoneConfig = {
   raw: '+15513241057',
   display: '(551) 324-1057'
@@ -21,7 +23,15 @@ const openHouse = {
   }
 };
 
-/* ---------- 3. ANALYTICS ---------- */
+/* ---------- 3. LEAD VIDEO (voiced, plays with sound after a tap) ----------
+   Before the open house ends: the open house video (it says the dates).
+   After: the sale video (new price, no dates), so the page never plays old dates. */
+const leadVideo = {
+  before: { src: 'media/lead.mp4', poster: 'img/lead-poster.jpg', name: 'oh-lead' },
+  after: { src: '../videos/web/lead-899.mp4', poster: '../videos/web/lead-899-poster.jpg', name: 'lead-899' }
+};
+
+/* ---------- 4. ANALYTICS ---------- */
 const analyticsConfig = { ga4Id: '' };
 const PAGE_ID = 'bond-street-1057-open-house';
 
@@ -93,6 +103,7 @@ function wireContacts() {
   const gate = document.getElementById('callGate');
   const tel = gate.querySelector('[data-gate-tel]');
   const sub = gate.querySelector('[data-call-sub]');
+  const phoneText = gate.querySelectorAll('[data-phone-text]');
   let origin = 'unknown', answer = null, armedAt = 0, lastFocus = null;
   const SUB = {
     buy: 'Ask about the $899,000 price and the open house this weekend.',
@@ -105,14 +116,20 @@ function wireContacts() {
     const first = gate.querySelector(`.gate__step[data-step="${step}"]`).querySelector('button, a');
     if (first) setTimeout(() => first.focus({ preventScroll: true }), 30);
   };
+  const disarm = () => {                        // no number and no tel: link until both answers are in
+    tel.setAttribute('href', '#');
+    phoneText.forEach(el => { el.textContent = ''; });
+  };
   const open = loc => {
     origin = loc || 'unknown'; answer = null; lastFocus = document.activeElement;
+    disarm();
     gate.hidden = false; document.documentElement.classList.add('gate-open');
     track('CallQuestionOpen', { location: origin });
     show('nj');
   };
   const close = () => {
     gate.hidden = true; document.documentElement.classList.remove('gate-open');
+    disarm();
     if (lastFocus && lastFocus.focus) lastFocus.focus({ preventScroll: true });
   };
   document.querySelectorAll('[data-call]').forEach(el => {
@@ -132,10 +149,12 @@ function wireContacts() {
     answer = b.dataset.answer;
     track('CallQuestionAnswer', { location: origin, question: 'interest', interest: answer });
     sub.textContent = (answer === 'buy' && document.documentElement.classList.contains('oh-over')) ? SUB.buyAfter : SUB[answer];
+    tel.setAttribute('href', 'tel:' + phoneConfig.raw);
+    phoneText.forEach(el => { el.textContent = phoneConfig.display; });
     show('call');
   }));
-  tel.setAttribute('href', 'tel:' + phoneConfig.raw);
-  tel.addEventListener('click', () => {
+  tel.addEventListener('click', e => {
+    if (!answer) { e.preventDefault(); return; }
     const p = { location: origin, via: 'call', interest: answer, ...base() };
     track('CallButtonClick', p); lead('call', p);
   });
@@ -151,7 +170,11 @@ function wireContacts() {
     }
   });
 
-  document.querySelectorAll('[data-phone-text]').forEach(el => { el.textContent = phoneConfig.display; });
+  // a link to this page ending in #call (the thank-you page, the calendar invite) opens the questions
+  if (window.location.hash === '#call') {
+    try { history.replaceState(null, '', window.location.pathname + window.location.search); } catch (e) { /* ignore */ }
+    open(/thanks/.test(document.referrer || '') ? 'thanks' : 'link');
+  }
 }
 
 function applySchedule() {
@@ -161,9 +184,13 @@ function applySchedule() {
   document.documentElement.classList.toggle('oh-over', over);
   // a day that is over drops out of the date lists
   document.querySelectorAll('li[data-day]').forEach(li => { li.hidden = Date.now() > Date.parse(openHouse.days[li.dataset.day].endsAt); });
-  // the tour poster has the open house dates on it
-  const tour = document.getElementById('tourVideo');
-  if (over && tour) tour.poster = 'img/hero-poster.jpg';
+  // the open house video says the dates, so once it is over the sale video takes its place
+  const v = document.getElementById('tourVideo');
+  if (v) {
+    const pick = over ? leadVideo.after : leadVideo.before;
+    if (v.getAttribute('src') !== pick.src) { v.poster = pick.poster; v.src = pick.src; }
+    v.dataset.video = pick.name;
+  }
 }
 
 function wireScroll() {
@@ -194,20 +221,21 @@ function wireVideo() {
   const cover = v.parentElement.querySelector('.vcover');
   let started = false;
   const hit = new Set();
+  const name = () => v.dataset.video || 'lead';
   cover.addEventListener('click', () => {
     v.muted = false;
     v.currentTime = 0;
     v.controls = true;
     v.play().catch(() => { v.muted = true; v.play().catch(() => {}); });
     cover.hidden = true;
-    if (!started) { started = true; track('VideoPlay', { video: 'tour' }); }
+    if (!started) { started = true; track('VideoPlay', { video: name() }); }
   });
   v.addEventListener('timeupdate', () => {
     if (!started || !v.duration) return;
     const pct = v.currentTime / v.duration * 100;
-    [25, 50, 75].forEach(m => { if (pct >= m && !hit.has(m)) { hit.add(m); track('VideoProgress', { video: 'tour', percent: m }); } });
+    [25, 50, 75].forEach(m => { if (pct >= m && !hit.has(m)) { hit.add(m); track('VideoProgress', { video: name(), percent: m }); } });
   });
-  v.addEventListener('ended', () => track('VideoComplete', { video: 'tour' }));
+  v.addEventListener('ended', () => track('VideoComplete', { video: name() }));
   if ('IntersectionObserver' in window) {
     new IntersectionObserver(es => es.forEach(e => { if (!e.isIntersecting && !v.paused) v.pause(); }), { threshold: 0.15 }).observe(v);
   }

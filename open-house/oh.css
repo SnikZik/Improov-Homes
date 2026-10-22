@@ -91,8 +91,11 @@ p,li{text-wrap:pretty}
 .vcover__play{display:grid;place-items:center;width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,.95);color:var(--dark);
   box-shadow:0 10px 40px rgba(0,0,0,.45)}
 .vcover__play svg{margin-left:3px}
-.vcover__sound{padding:8px 15px;border-radius:999px;background:rgba(12,18,15,.6);border:1px solid rgba(255,255,255,.28);
-  font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.vcover__sound{display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:999px;background:rgba(12,18,15,.72);border:1px solid rgba(255,255,255,.34);
+  font-size:13.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.vcover__sound svg{flex:none}
+/* the lead video sits right under the hero, so it reads as part of it on a phone */
+.sec--lead{padding-top:12px}
 .facts{margin-top:22px;display:grid;gap:12px}
 .facts li{font-size:17px;color:#C8D2CC}
 .facts b{color:#fff}
@@ -164,6 +167,7 @@ p,li{text-wrap:pretty}
   html{scroll-padding-bottom:0}
   .gallery{grid-template-columns:repeat(3,1fr)}
   .wrap--split{grid-template-columns:360px 1fr;gap:64px}
+  .sec--lead{padding-top:72px;border-top:1px solid rgba(255,255,255,.08)}
   .sticky{left:auto;right:28px;bottom:28px;padding:0;background:none;border:0;-webkit-backdrop-filter:none;backdrop-filter:none}
   .sticky{gap:10px}
   .sticky .btn{padding:0 24px}

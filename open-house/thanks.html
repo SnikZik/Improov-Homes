@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="format-detection" content="telephone=no">
 <script>
 /* GHL may load this page inside the form's iframe; lift it to the full window first */
 if (window.top !== window.self) { try { window.top.location.replace(window.location.href); } catch (e) { /* cross origin, stay framed */ } }
@@ -71,7 +72,7 @@ body{padding-bottom:0}
       <div><p>Sunday, Oct 25, 1 to 3 PM</p><div class="thx__cal" data-both="sun"></div></div>
     </div>
 
-    <p class="thx__ask">Questions before you come? Call <a href="tel:+15513241057" data-ask="call">(551) 324-1057</a></p>
+    <p class="thx__ask">Questions before you come? <a href="./#call" data-ask="call">Call us</a></p>
     <a class="thx__back" href="./">Back to the house</a>
   </main>
 
@@ -100,6 +101,7 @@ const DAYS = {
          ics: 'open-house-sun.ics', start: '20261025T130000', end: '20261025T150000', label: 'Sunday, Oct 25, 1 to 3 PM' }
 };
 const PAGE_ID = 'bond-street-1057-open-house';
+const OH_URL = 'https://snikzik.github.io/Improov-Homes/open-house/';
 const read = k => { try { return sessionStorage.getItem(k); } catch (e) { return null; } };
 const write = (k, v) => { try { sessionStorage.setItem(k, v); } catch (e) { /* private mode */ } };
 const track = (event, params = {}) => {
@@ -115,7 +117,7 @@ const google = d => 'https://calendar.google.com/calendar/render?action=TEMPLATE
   + '&text=' + encodeURIComponent('Open house at 1057 Bond St, Elizabeth NJ')
   + '&dates=' + d.start + '/' + d.end + '&ctz=America/New_York'
   + '&location=' + encodeURIComponent('1057 Bond St, Elizabeth, NJ 07201')
-  + '&details=' + encodeURIComponent(d.label + '. Legal two family, renovated in 2026, now $899,000. Questions? Call Improov Homes at (551) 324-1057.');
+  + '&details=' + encodeURIComponent(d.label + '. Legal two family, renovated in 2026, now $899,000. Questions? Call from the open house page: ' + OH_URL + '#call');
 const android = /android/i.test(navigator.userAgent);
 const calButtons = (d, day) => {
   // Android opens Google Calendar; iPhone, Mac and Outlook take the .ics file
@@ -162,11 +164,10 @@ if (window.top === window.self) {
     track('RSVPBooked', params);
     try { if (typeof window.fbq === 'function') window.fbq('track', 'Lead', { lead_type: 'rsvp', content_name: '1057 Bond open house', ...params }); } catch (e) { /* ignore */ }
   }
+  // "Call us" goes back to the open house page and opens the call questions there;
+  // the call Lead is counted on that page, on the real tap to call
   document.querySelector('[data-ask]').addEventListener('click', () => {
-    track('CallButtonClick', { location: 'thanks', via: 'call', ...utm });
-    try {
-      if (!read('oh_lead_call')) { write('oh_lead_call', '1'); if (typeof window.fbq === 'function') window.fbq('track', 'Lead', { lead_type: 'call', content_name: '1057 Bond open house', location: 'thanks', ...utm }); }
-    } catch (e) { /* ignore */ }
+    track('CallLinkClick', { location: 'thanks', ...utm });
   });
 }
 </script>

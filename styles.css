@@ -264,8 +264,9 @@ ul{padding:0;list-style:none}
 
 /* ---------- final / footer ---------- */
 /* NJ: a standalone listing page must carry the brokerage's phone number in
-   wording as large as the predominant wording on the page — so it is set at
-   headline scale, not footer scale. */
+   wording as large as the predominant wording on the page, so the office line
+   is set at headline scale, not footer scale. Plain text, not a link: the
+   campaign number is only shown inside the call questions popup. */
 .broker{margin-top:34px;padding-top:26px;border-top:1px solid rgba(255,255,255,.16)}
 .broker__brand{
   margin:0;color:#fff;font-size:clamp(19px,4.6vw,23px);font-weight:700;letter-spacing:-.02em;text-wrap:balance
@@ -275,7 +276,6 @@ ul{padding:0;list-style:none}
   font-size:clamp(31px,7vw,48px);font-weight:700;line-height:1.05;
   letter-spacing:-.032em;font-variant-numeric:tabular-nums
 }
-.broker__num:hover{text-decoration:underline;text-underline-offset:5px}
 .broker__person{margin:10px 0 0;color:rgba(255,255,255,.72);font-size:15px;font-weight:500}
 .foot{padding:34px 0 40px;background:var(--paper-2);border-top:1px solid var(--line)}
 .foot__row{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
@@ -294,7 +294,6 @@ ul{padding:0;list-style:none}
   border-top:1px solid var(--line);
 }
 .sticky .btn{min-height:56px}
-.sticky__num{display:none}
 
 /* ---------- desktop ---------- */
 @media (min-width:900px){
@@ -325,8 +324,6 @@ ul{padding:0;list-style:none}
     width:auto;padding:0 28px;min-height:64px;font-size:17px;
     box-shadow:0 18px 44px -16px rgba(11,107,79,.85)
   }
-  .sticky__num{display:inline;font-variant-numeric:tabular-nums;opacity:.85;margin-left:4px}
-  .sticky__label::after{content:" ·";opacity:.55}
 }
 
 @media (prefers-reduced-motion:reduce){

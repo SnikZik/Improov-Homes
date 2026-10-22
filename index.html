@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- iOS must not turn the plain office line into a tap-to-call link (same as the NY page) -->
+<meta name="format-detection" content="telephone=no">
 
 <!-- Meta Pixel Code -->
 <script>
@@ -21,12 +23,12 @@ fbq('track', 'PageView');
 src="https://www.facebook.com/tr?id=309890672012145&ev=PageView&noscript=1"
 /></noscript>
 <!-- End Meta Pixel Code -->
-<title>Two-Family at 1057 Bond Street, Elizabeth NJ | Improov Homes</title>
-<meta name="description" content="Two-family home at 1057 Bond Street, Elizabeth NJ, listed at $999,000. Live in one unit, rent the other. Call Imbar Meidani's team at Improov Homes.">
+<title>$899K Two-Family at 1057 Bond Street, Elizabeth NJ | Improov Homes</title>
+<meta name="description" content="Two-family home at 1057 Bond Street, Elizabeth NJ, listed at $899,000. Live in one unit, rent the other. Call Imbar Meidani's team at Improov Homes.">
 <meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#0F1512">
-<meta property="og:title" content="Two-Family at 1057 Bond Street, Elizabeth NJ">
-<meta property="og:description" content="Live in one unit and rent the other. A $999K two-family in Elizabeth, NJ.">
+<meta property="og:title" content="$899K Two-Family at 1057 Bond Street, Elizabeth NJ">
+<meta property="og:description" content="Live in one unit and rent the other. A $899K two-family in Elizabeth, NJ.">
 <meta property="og:type" content="website">
 <link rel="stylesheet" href="styles.css">
 <link rel="stylesheet" href="gate.css">
@@ -44,7 +46,8 @@ src="https://www.facebook.com/tr?id=309890672012145&ev=PageView&noscript=1"
              data-video="hero"
              playsinline
              preload="metadata"
-             src="videos/web/hero-15sec-open.mp4"></video>
+             poster="videos/web/lead-899-poster.jpg"
+             src="videos/web/lead-899.mp4"></video>
 
       <button class="vcover" id="heroCover" type="button" aria-label="Play video with sound">
         <span class="vcover__scrim"></span>
@@ -53,7 +56,7 @@ src="https://www.facebook.com/tr?id=309890672012145&ev=PageView&noscript=1"
             <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M8 5.5 19 12 8 18.5Z"/></svg>
           </span>
           <span class="vcover__sound">Watch with sound</span>
-          <span class="vcover__line">See why this $999K home may cost less than you think</span>
+          <span class="vcover__line">Price cut $100,000. Now $899K.</span>
         </span>
         <span class="vchip"><span class="vchip__dot"></span>Video<span class="vchip__time" data-duration></span></span>
       </button>
@@ -70,7 +73,7 @@ src="https://www.facebook.com/tr?id=309890672012145&ev=PageView&noscript=1"
 
     <!-- prices only: shown while no scenario in financingConfig has its lender APR -->
     <div data-fin="off">
-      <h2 class="h2">The price is $999K.<br>Unit 2 is listed for rent at <span data-fact="rent"></span> a month.</h2>
+      <h2 class="h2">The price is $899K.<br>Unit 2 is listed for rent at <span data-fact="rent"></span> a month.</h2>
       <p class="lede">Live in one unit and rent the other. Your down payment and monthly cost depend on the loan you qualify for, so Imbar's team runs the FHA, CRA and conventional numbers with you on the call.</p>
       <dl class="facts">
         <div><dt>List price</dt><dd data-fact="price"></dd></div>
@@ -83,7 +86,7 @@ src="https://www.facebook.com/tr?id=309890672012145&ev=PageView&noscript=1"
 
     <!-- financing: shown only for scenarios with a complete lender quote (Reg Z) -->
     <div data-fin="on" hidden>
-      <h2 class="h2">The price is $999K.<br>The math is the real story.</h2>
+      <h2 class="h2">The price is $899K.<br>The math is the real story.</h2>
       <p class="lede">Live in one unit and rent the other. Each card is an estimate to a qualified buyer, with its loan example underneath.</p>
     </div>
 
@@ -184,7 +187,8 @@ src="https://www.facebook.com/tr?id=309890672012145&ev=PageView&noscript=1"
     </a>
     <div class="broker">
       <p class="broker__brand">Improov Homes, Licensed Real Estate Broker</p>
-      <a class="broker__num" href="#" data-call data-loc="final-number" data-phone-text></a>
+      <!-- brokerage office line, plain text (NJ display rule). The campaign number is only inside #callGate -->
+      <p class="broker__num" data-office-text>(973) 743-9333</p>
       <p class="broker__person">Imbar Meidani &middot; Founder &amp; Principal Broker</p>
     </div>
   </div>
@@ -215,7 +219,6 @@ src="https://www.facebook.com/tr?id=309890672012145&ev=PageView&noscript=1"
   <a class="btn btn--call btn--block" href="#" data-call data-loc="sticky">
     <span class="btn__ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2Z"/></svg></span>
     <span class="sticky__label">Call Imbar now</span>
-    <span class="sticky__num" data-phone-text></span>
   </a>
 </div>
 

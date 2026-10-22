@@ -10,14 +10,15 @@ Live URL once pushed: `https://snikzik.github.io/Improov-Homes/ny/`
 
 | Block | What it controls |
 |---|---|
-| `phoneConfig` | NY tracking number. **Still the main campaign number** until Imbar's NY line is in; flip `isPlaceholder` to false when it is. |
+| `phoneConfig` | NY tracking number. **Still the main campaign number** until Imbar's NY line is in; flip `isPlaceholder` to false when it is. It appears only in the qualifier's last step, after both questions, never on the page itself. |
 | `officeConfig` | Brokerage office number, shown as text (NJ display rule), never a tap target, so it does not bypass the qualifier. |
 | `hoursConfig` | Call hours, Eastern. Outside them the qualifier shows the number and the opening time instead of a tap-to-call button. `enforce:false` turns this off. |
 | `gateConfig` | Which "no" answers stop the call. Only the New Jersey question does. The rental-income question is informational: blocking it would screen out buyers who want the whole house for their own household, a fair-housing risk. |
-| `subject` | The house. Verified against GSMLS #4057212 and the 2025 tax bill on 15 Oct 2026. |
+| `subject` | The house. List price $899,000 (cut from $999,000 in Oct 2026). Verified against GSMLS #4057212 and the 2025 tax bill on 15 Oct 2026. |
 | `loanExample.apr` | **Reg Z switch.** Empty = the page shows prices only and no financing numbers. Paste the lender's APR and the down payment, cash to close, monthly payment and income rows come back with the full disclosure. Preview the financing version with `?preview_financing=1`. |
 | `comparisonConfig` | The comps. Only 144-11 223rd St, Laurelton is in. 203 Essex St is out (its deed also bought the vacant lot next door) and 185 Bennett Ave, Yonkers is out (3 units, 3,785 sq ft). |
 | `commuteConfig` | Only verified figures (NJ Transit timetables). |
+| `videoConfig` | Hero video: `../videos/web/lead-899.mp4` with poster `../videos/web/lead-899-poster.jpg` (9:16 lead, voiceover, says the $899,000 price, no phone number). |
 
 ## Events (same names as the main page, page id `bond-street-1057-ny`)
 
