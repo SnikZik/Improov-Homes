@@ -191,7 +191,10 @@ const GA4_EVENT = {
   VideoProgress: 'video_progress',
   HeroVideoComplete: 'video_complete',
   SectionVideoComplete: 'video_complete',
-  CallButtonClick: 'call_click'
+  CallButtonClick: 'call_click',
+  QualifierOpen: 'qualifier_open',
+  QualifierAnswer: 'qualifier_answer',
+  QualifierBlocked: 'qualifier_blocked'
 };
 
 const track = (event, params = {}) => {
@@ -264,28 +267,88 @@ function wireSectionViews() {
 const money = n => '$' + Math.round(n).toLocaleString('en-US');
 
 /* ============================================================
-   5. PHONE WIRING — every CTA, one number
+   5. PHONE WIRING: every call button opens two questions first
+   (New Jersey, then buy or rent to own), the same as the open house
+   page. "No" to New Jersey ends there with no number. The tap-to-call
+   is inside the popup, and CallButtonClick + Meta 'Contact' fire only
+   on that tap.
+   Extra events: QualifierOpen, QualifierAnswer, QualifierBlocked.
    ============================================================ */
 function wirePhone() {
-  const href = 'tel:' + phoneConfig.raw;
+  const gate = document.getElementById('callGate');
+  const tel = gate.querySelector('[data-gate-tel]');
+  const sub = gate.querySelector('[data-call-sub]');
+  const SUB = {
+    buy: 'Ask about the price and a private showing.',
+    rto: 'Ask for the written rent-to-own terms for the first-floor unit and lower level.'
+  };
+  let origin = 'unknown', interest = null, armedAt = 0, lastFocus = null;
+
+  const show = step => {
+    armedAt = Date.now() + 400;                 // a double tap must not answer the next question too
+    gate.querySelectorAll('.gate__step').forEach(st => { st.hidden = st.dataset.step !== step; });
+    const first = gate.querySelector(`.gate__step[data-step="${step}"]`).querySelector('button, a');
+    if (first) setTimeout(() => first.focus({ preventScroll: true }), 30);
+  };
+  const open = loc => {
+    origin = loc || 'unknown'; interest = null; lastFocus = document.activeElement;
+    gate.hidden = false; document.documentElement.classList.add('gate-open');
+    track('QualifierOpen', { location: origin });
+    show('nj');
+  };
+  const close = () => {
+    gate.hidden = true; document.documentElement.classList.remove('gate-open');
+    if (lastFocus && lastFocus.focus) lastFocus.focus({ preventScroll: true });
+  };
 
   document.querySelectorAll('[data-call]').forEach(el => {
-    el.setAttribute('href', href);
-    el.addEventListener('click', () => {
-      const params = {
-        location: el.dataset.loc || 'unknown',
-        phone: phoneConfig.raw,
-        seconds_on_page: Math.round((Date.now() - session.startedAt) / 1000),
-        engaged_seconds: session.engagedSeconds,
-        max_scroll: session.maxScroll,
-        videos_started: session.videosStarted
-      };
-      track('CallButtonClick', params);
-      // Meta standard event too, so a campaign can optimise toward calls
-      try {
-        if (typeof window.fbq === 'function') window.fbq('track', 'Contact', { ...attribution, ...params });
-      } catch (e) { /* tracking must never break the page */ }
-    });
+    el.setAttribute('href', '#call');
+    el.setAttribute('aria-haspopup', 'dialog');
+    el.addEventListener('click', e => { e.preventDefault(); open(el.dataset.loc); });
+  });
+  gate.querySelectorAll('[data-nj]').forEach(b => b.addEventListener('click', () => {
+    if (Date.now() < armedAt) return;
+    const yes = b.dataset.nj === 'yes';
+    track('QualifierAnswer', { location: origin, question: 'open_to_nj', answer: b.dataset.nj });
+    if (!yes) track('QualifierBlocked', { location: origin, reason: 'not_open_to_nj' });
+    show(yes ? 'q' : 'no-nj');
+  }));
+  gate.querySelectorAll('[data-answer]').forEach(b => b.addEventListener('click', () => {
+    if (Date.now() < armedAt) return;
+    interest = b.dataset.answer;
+    track('QualifierAnswer', { location: origin, question: 'interest', answer: interest });
+    sub.textContent = SUB[interest];
+    show('call');
+  }));
+  gate.querySelectorAll('[data-gate-close]').forEach(el => el.addEventListener('click', close));
+  document.addEventListener('keydown', e => {
+    if (gate.hidden) return;
+    if (e.key === 'Escape') return close();
+    if (e.key === 'Tab') {                      // keep focus inside the dialog
+      const f = [...gate.querySelectorAll('button, a')].filter(n => n.offsetParent !== null);
+      if (!f.length) return;
+      if (e.shiftKey && document.activeElement === f[0]) { e.preventDefault(); f[f.length - 1].focus(); }
+      else if (!e.shiftKey && document.activeElement === f[f.length - 1]) { e.preventDefault(); f[0].focus(); }
+    }
+  });
+
+  tel.setAttribute('href', 'tel:' + phoneConfig.raw);
+  tel.addEventListener('click', () => {
+    const params = {
+      location: origin,
+      via: 'qualifier',
+      interest,
+      phone: phoneConfig.raw,
+      seconds_on_page: Math.round((Date.now() - session.startedAt) / 1000),
+      engaged_seconds: session.engagedSeconds,
+      max_scroll: session.maxScroll,
+      videos_started: session.videosStarted
+    };
+    track('CallButtonClick', params);
+    // Meta standard event too, so a campaign can optimise toward calls
+    try {
+      if (typeof window.fbq === 'function') window.fbq('track', 'Contact', { ...attribution, ...params });
+    } catch (e) { /* tracking must never break the page */ }
   });
 
   document.querySelectorAll('[data-phone-text]').forEach(el => {

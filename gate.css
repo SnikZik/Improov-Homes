@@ -1,0 +1,29 @@
+/* Call questions popup, main page only (the NY page has its own copy in ny/ny.css). */
+.gate[hidden],.gate [hidden]{display:none !important}
+.gate{position:fixed;inset:0;z-index:100;display:flex;align-items:flex-end;justify-content:center}
+.gate__backdrop{position:absolute;inset:0;background:rgba(10,14,12,.62);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);animation:gateFade .18s ease}
+.gate__panel{position:relative;width:100%;max-width:520px;max-height:92svh;overflow:auto;background:var(--paper);color:var(--ink);
+  border-radius:22px 22px 0 0;padding:30px 22px calc(26px + env(safe-area-inset-bottom));
+  box-shadow:0 -20px 60px -20px rgba(0,0,0,.5);animation:gateUp .22s cubic-bezier(.2,.8,.2,1)}
+.gate__x{position:absolute;top:12px;right:12px;width:44px;height:44px;border:0;border-radius:50%;background:transparent;color:var(--ink-3);
+  cursor:pointer;display:grid;place-items:center}
+.gate__x:hover{background:var(--paper-2);color:var(--ink)}
+.gate__count{margin-bottom:8px;font-size:12.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+.gate__q{margin:0;padding-right:34px;font-size:clamp(23px,6vw,28px);font-weight:700;line-height:1.18;letter-spacing:-.025em;text-wrap:balance}
+.gate__sub{margin-top:12px;font-size:16px;line-height:1.55;color:var(--ink-2)}
+.gate__answers{margin-top:24px;display:grid;gap:10px}
+.gate__a{min-height:56px;width:100%;border-radius:14px;cursor:pointer;font:inherit;font-size:17px;font-weight:600;
+  background:#fff;color:var(--ink);border:1.5px solid var(--line)}
+.gate__a:hover{border-color:var(--accent);background:#F4FAF7}
+.gate__a:focus-visible,.gate__x:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.gate__a--quiet{color:var(--ink-2)}
+.gate__a--close{margin-top:22px}
+.gate__step .btn{display:flex;width:100%;margin:22px 0 0}
+.gate-open,.gate-open body{overflow:hidden}
+@keyframes gateUp{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
+@keyframes gateFade{from{opacity:0}to{opacity:1}}
+@media (min-width:900px){
+  .gate{align-items:center}
+  .gate__panel{border-radius:22px;padding:36px 34px 32px}
+}
+@media (prefers-reduced-motion:reduce){.gate__panel,.gate__backdrop{animation:none}}
