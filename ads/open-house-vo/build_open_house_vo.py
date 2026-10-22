@@ -34,10 +34,10 @@ SMALL = '<span style="font-size:60px">{}</span>'
 # Only the new WhatsApp walkthrough (Imbar asked for this video). One scene per sentence.
 #  (second in the walkthrough, vertical anchor of the card crop 0 = top 1 = bottom, headline, sub)
 SCENES = [
-    (0.0, 0.25, 'Open house this weekend', 'Sat, Oct 24 and Sun, Oct 25'),
+    (0.0, 0.25, 'Open house in<br>Elizabeth, New Jersey', 'Sat, Oct 24 and Sun, Oct 25'),
     (3.0, 0.30, 'Price reduced $100,000', 'Now $899,000'),
     (88.0, 0.50, 'Renovated legal two-family', 'New kitchen, central air, refinished wood floors'),
-    (79.5, 0.50, 'About 33 min by train<br>to NY Penn Station', 'Elizabeth station is 0.6 mi away'),
+    (79.5, 0.50, 'About 33 min by train<br>to NY Penn Station', 'Elizabeth, NJ station is 0.6 mi away'),
     (6.5, 0.40, SMALL.format('Saturday 12 to 3 PM<br>Sunday 1 to 3 PM'), 'Oct 24 and Oct 25 · 1057 Bond St, Elizabeth, NJ'),
 ]
 END_BG = 1.0          # walkthrough second used, blurred, behind the end card

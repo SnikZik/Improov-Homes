@@ -41,11 +41,11 @@ src="https://www.facebook.com/tr?id=309890672012145&ev=PageView&noscript=1"
       aria-label="Front of 1057 Bond St, Elizabeth NJ, then the living room, the kitchen and a bedroom"></video>
   </div>
   <div class="hero__body wrap">
-    <p class="pill" data-when="before">Open house</p>
+    <p class="pill" data-when="before">Open house · New Jersey</p>
     <p class="pill pill--quiet" data-when="after" hidden>Open house is over</p>
     <p class="cut">Price reduced $100,000</p>
     <h1 class="price">$899,000</h1>
-    <p class="addr">1057 Bond St, Elizabeth, NJ 07201<br>Legal two-family, renovated in 2026</p>
+    <p class="addr"><b>1057 Bond St, Elizabeth, New Jersey</b><br>Legal two-family, renovated in 2026</p>
 
     <ul class="dates" data-when="before">
       <li data-day="sat"><b>Saturday, Oct 24</b><span>12 to 3 PM</span></li>
@@ -224,12 +224,26 @@ src="https://www.facebook.com/tr?id=309890672012145&ev=PageView&noscript=1"
     <button class="gate__x" type="button" data-gate-close aria-label="Close">
       <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
     </button>
-    <div class="gate__step" data-step="q">
-      <h2 class="gate__q" id="callGateQ">Are you looking to buy, or to rent to own?</h2>
+    <div class="gate__step" data-step="nj">
+      <p class="gate__count">Question 1 of 2</p>
+      <h2 class="gate__q" id="callGateQ">This home is in Elizabeth, New Jersey. Would you live in New Jersey?</h2>
+      <div class="gate__answers">
+        <button class="gate__a" type="button" data-nj="yes">Yes, I'm open to it</button>
+        <button class="gate__a gate__a--quiet" type="button" data-nj="no">No</button>
+      </div>
+    </div>
+    <div class="gate__step" data-step="q" hidden>
+      <p class="gate__count">Question 2 of 2</p>
+      <h2 class="gate__q">Are you looking to buy, or to rent to own?</h2>
       <div class="gate__answers">
         <button class="gate__a" type="button" data-answer="buy">Buy</button>
         <button class="gate__a" type="button" data-answer="rto">Rent to own</button>
       </div>
+    </div>
+    <div class="gate__step" data-step="no-nj" hidden>
+      <h2 class="gate__q">Thanks for telling us.</h2>
+      <p class="gate__sub">This home is in New Jersey, so it may not be the one for you. If New Jersey makes your list later, this page will still be here.</p>
+      <button class="gate__a gate__a--quiet gate__a--close" type="button" data-gate-close>Close</button>
     </div>
     <div class="gate__step" data-step="call" hidden>
       <h2 class="gate__q">Thanks. Tap to call.</h2>

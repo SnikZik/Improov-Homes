@@ -13,23 +13,23 @@ plus two exterior shots from her earlier clips. No audio: add music from Meta's 
 
 **Primary text**
 
-> OPEN HOUSE this weekend at 1057 Bond St, Elizabeth, NJ.
-> Price reduced $100,000. Now $899,000.
+> OPEN HOUSE this weekend in Elizabeth, New Jersey.
+> 1057 Bond St, Elizabeth, NJ 07201. Price reduced $100,000. Now $899,000.
 >
 > Saturday, Oct 24 · 12 to 3 PM
 > Sunday, Oct 25 · 1 to 3 PM
 >
-> Legal two-family, renovated in 2026: new roof, new kitchen, central air, refinished wood floors, parking available. Live in one unit and let the rent from the other help pay the mortgage. Low-down-payment financing with no mortgage insurance is available to qualified owner-occupant buyers, subject to lender approval.
+> Legal two-family in New Jersey, renovated in 2026: new roof, new kitchen, central air, refinished wood floors, parking available. Live in one unit and let the rent from the other help pay the mortgage. Low-down-payment financing with no mortgage insurance is available to qualified owner-occupant buyers, subject to lender approval.
 >
-> About 33 minutes by train to NYC Penn Station.
+> From Elizabeth, NJ it is about 33 minutes by train to NYC Penn Station.
 >
 > Not ready to buy? Rent to own. The first-floor unit plus the finished lower level is $4,500 a month: 3 bedrooms, 2 full baths and the updated kitchen on the main level, two bonus rooms and a full bath below. Rent now with the option to buy, and ask for the written terms at the open house.
 >
 > Call (551) 324-1057.
-> Improov Homes, Licensed Real Estate Broker. Equal Housing Opportunity.
+> Improov Homes, Licensed Real Estate Broker (New Jersey). Equal Housing Opportunity.
 
-**Headline:** Open House Sat & Sun · Now $899,000
-**Description:** 1057 Bond St, Elizabeth NJ · Call (551) 324-1057
+**Headline:** Open House in Elizabeth, New Jersey · $899,000
+**Description:** Sat & Sun open house · Call (551) 324-1057
 **Button:** Learn More (to the open house page, so the pixel counts the lead)
 
 No down payment amount or percentage, monthly payment, rate or term anywhere: keep it that way,

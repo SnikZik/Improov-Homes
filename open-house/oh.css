@@ -60,6 +60,7 @@ p,li{text-wrap:pretty}
 .cut{margin-top:18px;font-size:18px;font-weight:700;color:var(--gold-2)}
 .price{margin-top:2px;font-size:clamp(56px,16vw,96px);font-weight:800;letter-spacing:-.045em;line-height:.98}
 .addr{margin-top:10px;font-size:16px;font-weight:600;color:#C8D2CC}
+.addr b{font-size:17px;font-weight:800;color:#fff;letter-spacing:-.01em}
 .dates{margin-top:22px;display:grid;gap:8px}
 .dates li{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:14px 18px;border-radius:14px;
   background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1)}
@@ -144,6 +145,9 @@ p,li{text-wrap:pretty}
 .gate__a{min-height:56px;width:100%;border-radius:14px;cursor:pointer;font:inherit;font-size:17px;font-weight:600;
   background:#fff;color:var(--ink);border:1.5px solid var(--line)}
 .gate__a:hover{border-color:var(--accent);background:#F4FAF7}
+.gate__a--quiet{color:var(--ink-2)}
+.gate__a--close{margin-top:22px}
+.gate__count{margin-bottom:8px;font-size:12.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
 .gate__step .btn{margin-top:22px}
 .btn--block{width:100%}
 button.btn{cursor:pointer;font-family:inherit}

@@ -29,7 +29,7 @@ const PAGE_ID = 'bond-street-1057-open-house';
 /* ============================================================
    TRACKING
      LandingPageView, ScrollDepth, SectionView,
-     CallQuestionOpen, CallQuestionAnswer (interest: buy | rto),
+     CallQuestionOpen, CallQuestionAnswer (open_to_nj yes | no, then interest buy | rto), CallBlocked (not open to NJ),
      CallButtonClick (+ Meta 'Lead', lead_type call, with the answer),
      RSVPOpen, RSVPDay (day: sat | sun), RSVPBooked (+ Meta 'Lead', lead_type rsvp, fired on thanks.html), VideoPlay, VideoProgress, VideoComplete
    Meta pixel 309890672012145: the campaign optimizes for the standard 'Lead' event.
@@ -89,7 +89,8 @@ const lead = (type, params) => {
 function wireContacts() {
   const base = () => ({ phone: phoneConfig.raw, seconds_on_page: Math.round((Date.now() - session.startedAt) / 1000), max_scroll: session.maxScroll });
 
-  // every call button asks one question first; the tap-to-call is inside the popup
+  // every call button asks two questions first (New Jersey, then buy or rent to own); the
+  // tap-to-call is inside the popup. "No" to New Jersey ends there, as on the NY page.
   const gate = document.getElementById('callGate');
   const tel = gate.querySelector('[data-gate-tel]');
   const sub = gate.querySelector('[data-call-sub]');
@@ -108,7 +109,7 @@ function wireContacts() {
     origin = loc || 'unknown'; answer = null; lastFocus = document.activeElement;
     gate.hidden = false; document.documentElement.classList.add('gate-open');
     track('CallQuestionOpen', { location: origin });
-    show('q');
+    show('nj');
   };
   const close = () => {
     gate.hidden = true; document.documentElement.classList.remove('gate-open');
@@ -119,10 +120,17 @@ function wireContacts() {
     el.setAttribute('aria-haspopup', 'dialog');
     el.addEventListener('click', e => { e.preventDefault(); open(el.dataset.loc); });
   });
+  gate.querySelectorAll('[data-nj]').forEach(b => b.addEventListener('click', () => {
+    if (Date.now() < armedAt) return;
+    const yes = b.dataset.nj === 'yes';
+    track('CallQuestionAnswer', { location: origin, question: 'open_to_nj', answer: b.dataset.nj });
+    if (!yes) track('CallBlocked', { location: origin, reason: 'not_open_to_nj' });
+    show(yes ? 'q' : 'no-nj');
+  }));
   gate.querySelectorAll('[data-answer]').forEach(b => b.addEventListener('click', () => {
     if (Date.now() < armedAt) return;
     answer = b.dataset.answer;
-    track('CallQuestionAnswer', { location: origin, interest: answer });
+    track('CallQuestionAnswer', { location: origin, question: 'interest', interest: answer });
     sub.textContent = SUB[answer];
     show('call');
   }));

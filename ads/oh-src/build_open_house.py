@@ -17,7 +17,8 @@ WALK = pathlib.Path(sys.argv[1]) if len(sys.argv) > 1 else pathlib.Path('/Users/
 
 CFG = {
     'phone': '(551) 324-1057',
-    'address': '1057 Bond St · Elizabeth, NJ',
+    'address': '1057 Bond St · Elizabeth, New Jersey',
+    'state': 'Elizabeth, New Jersey',
     'price': '$899,000',
     'cut': 'Price reduced $100,000',
     'dates': [('Sat, Oct 24', '12 to 3 PM'), ('Sun, Oct 25', '1 to 3 PM')],
@@ -37,7 +38,7 @@ SCENES = [
     ('WALK', 79.0, 2.8, 'Refinished wood floors', 'Legal two-family'),
     ('WALK', 98.6, 3.0, '3 bed · 2 bath', 'On the main level'),
     ('WALK', 33.0, 3.0, 'Finished lower level', 'Two bonus rooms and a full bath'),
-    ('ads/C3_separate-everything.mp4', 3.5, 3.4, 'About 33 min by train<br>to NY Penn Station', 'Elizabeth station is 0.6 mi away'),
+    ('ads/C3_separate-everything.mp4', 3.5, 3.4, 'About 33 min by train<br>to NY Penn Station', 'Elizabeth, NJ station is 0.6 mi away'),
 ]
 END_DUR = 5.0
 XF = 0.35
@@ -72,8 +73,8 @@ def chrome_html():
 .frame{{position:absolute;left:{CARD_X}px;top:{CARD_Y}px;width:{CARD_W}px;height:{CARD_H}px;border-radius:30px;
   box-shadow:0 0 0 2000px #0F1512, inset 0 0 0 2px rgba(255,255,255,.16)}}</style></head><body>
 <div class="frame"></div>
-<div class="pill"><b>Open house</b><span>{CFG['chip']}</span></div>
-<div class="addr">{html.escape(CFG['address'])} · {CFG['price']}</div>
+<div class="pill"><b>Open house</b><span>{CFG['state']}</span></div>
+<div class="addr">{CFG['chip']} · {CFG['price']}</div>
 <div class="broker">{EHO.replace('width="78" height="78"','width="44" height="44"')}<p><b>{BROKER}</b><br>Office (973) 743-9333</p></div>
 </body></html>"""
 
@@ -98,7 +99,7 @@ body{{background:rgba(15,21,18,.9)}}
 .dates{{margin-top:34px;display:grid;gap:10px}}
 .d{{font-size:50px;font-weight:600;letter-spacing:-.02em;color:#C8D2CC}}
 .d b{{color:#fff;font-weight:800}}
-.addr2{{margin-top:22px;font-size:40px;font-weight:600;color:#C8D2CC}}
+.addr2{{margin-top:22px;font-size:44px;font-weight:800;color:#fff;letter-spacing:-.015em}}
 .call{{margin-top:40px;align-self:stretch;background:#fff;color:#0F1512;border-radius:999px;height:140px;
   display:flex;align-items:center;justify-content:center;gap:22px;font-size:56px;font-weight:800;letter-spacing:-.02em}}
 .rto{{margin-top:26px;font-size:36px;font-weight:600;color:#fff;text-align:center}}
@@ -108,7 +109,7 @@ body{{background:rgba(15,21,18,.9)}}
 .eho{{display:flex;flex-direction:column;align-items:center;gap:6px;flex:none}}
 .eho i{{font-style:normal;font-size:17px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;text-align:center;line-height:1.15}}
 </style></head><body><div class="wrap">
-<div class="k">Open house</div>
+<div class="k">Open house · New Jersey</div>
 <p class="cut">{CFG['cut']}</p>
 <p class="price">{CFG['price']}</p>
 <div class="dates">{dates_html(50)}</div>
@@ -135,7 +136,7 @@ html,body{{width:{w}px;height:{h}px;overflow:hidden;font-family:{FONT};-webkit-f
 .dates{{margin-top:{30 if story else 22}px;display:grid;gap:8px}}
 .d{{font-size:{46 if story else 40}px;font-weight:600;letter-spacing:-.02em;color:#C8D2CC}}
 .d b{{color:#fff;font-weight:800}}
-.addr2{{margin-top:{18 if story else 14}px;font-size:{36 if story else 32}px;font-weight:600;color:#C8D2CC}}
+.addr2{{margin-top:{18 if story else 14}px;font-size:{40 if story else 36}px;font-weight:800;color:#fff;letter-spacing:-.015em}}
 .call{{margin-top:{30 if story else 22}px;font-size:{44 if story else 36}px;font-weight:800;display:flex;align-items:center;gap:14px}}
 .rto{{margin-top:{14 if story else 10}px;font-size:{32 if story else 28}px;font-weight:500;color:#C8D2CC}}
 .legal{{margin-top:auto;display:flex;justify-content:space-between;align-items:flex-end;color:#C8D2CC;font-size:{24 if story else 22}px;font-weight:500;line-height:1.35}}
@@ -143,7 +144,7 @@ html,body{{width:{w}px;height:{h}px;overflow:hidden;font-family:{FONT};-webkit-f
 .eho{{display:flex;flex-direction:column;align-items:center;gap:6px;flex:none;color:#C8D2CC}}
 .eho i{{font-style:normal;font-size:14px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;text-align:center;line-height:1.15}}
 </style></head><body>
-<div class="photo"></div><div class="pill">Open house</div>
+<div class="photo"></div><div class="pill">Open house · New Jersey</div>
 <div class="body">
 <p class="cut">{CFG['cut']}</p>
 <p class="price">{CFG['price']}</p>
