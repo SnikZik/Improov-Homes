@@ -1,23 +1,20 @@
 """PAGE version of the 1057 Bond rent-to-own video (9:16), for rent-to-own/index.html.
 
-Copied from ads/rto-src/build_rto_video.py (the ad version, left untouched). The only change:
-no phone number on any frame. The ad's chrome said "Office (973) 743-9333" and its end card
-showed the campaign line; on the landing page the number must stay hidden until the visitor
+Same scenes, copy and voice timing as ads/rto-src/build_rto_video.py (the ad version). The only
+change: no phone number on any frame. The ad's chrome says "Office (973) 743-9333" and its end
+card shows the campaign line; on the landing page the number must stay hidden until the visitor
 answers the call questions, so the end card says "Tap Call on this page" instead.
-The voiceover is added afterwards with ffmpeg (see the README note at the bottom of this docstring).
 
 Footage: Imbar's own edited clips. Their burned-in captions and "FOR SALE" tags are
 covered by our top bar and bottom panel, so only the house and Imbar's picture-in-
-picture show through. No audio: Meta can add licensed music at upload.
+picture show through.
 
 Usage: python3 ads/rto-page-src/build_rto_page_video.py [rent ...]   (default 4500)
 
-Then add the Gia voiceover:
-  ffmpeg -i ads/rto-page-src/out/rto-page-4500_reel-9x16.mp4 -i ads/rto-vo/vo-rto-4500-gia.wav -filter_complex \
-    "[0:v]tpad=stop_mode=clone:stop_duration=1.4[v];[1:a]adelay=150|150,loudnorm=I=-16:TP=-1.5:LRA=11,aresample=48000,apad,atrim=0:21.667,afade=t=out:st=21.3:d=0.35[a]" \
-    -map "[v]" -map "[a]" -c:v libx264 -preset medium -crf 19 -pix_fmt yuv420p -c:a aac -b:a 160k -movflags +faststart rent-to-own/media/lead.mp4
+For 4500 it also lays the Gia voiceover (ads/rto-vo/vo-rto-4500-gia.wav) under the silent reel
+into rent-to-own/media/lead.mp4 and writes the page poster rent-to-own/img/lead-poster.jpg.
 """
-import subprocess, sys, pathlib, html, shutil, base64
+import subprocess, sys, pathlib, html, shutil, base64, json
 from playwright.sync_api import sync_playwright
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]          # repo root
@@ -28,7 +25,10 @@ CFG = {
     'cta': 'Tap Call on this page',   # page version: no phone number on any frame
     'address': '1057 Bond St · Elizabeth, NJ',
     'beds': 5, 'baths': 3,
-    'price': '$999,000',
+    # work done, in the client's exact words (23 Oct 2026); no-break spaces keep
+    # "New kitchens in both units." on one line of the feed still
+    'work': 'New roof. New central air. New\u00a0kitchens\u00a0in\u00a0both\u00a0units. Updated baths. Refinished wood floors.',
+    'price': '$899,000',   # reduced from $999,000 on 23 Oct 2026; not shown on any frame
 }
 
 W, H = 1080, 1920
@@ -40,16 +40,40 @@ CARD_W, CARD_X, CARD_Y = 740, 170, 676
 SRC_TOP, SRC_BOT = 160, 1300
 CARD_H = round((SRC_BOT - SRC_TOP) * CARD_W / 1080)
 
-# (source, start, duration, headline, sub)
+# The cuts follow the Gia voiceover (VO below), which starts VO_DELAY into the video. Its
+# sentences on the video clock (Whisper large-v3-turbo word times, checked against ffmpeg
+# silencedetect at -40 dB):
+#    0.6 to  5.2  "Rent to own at 1057 Bond Street in Elizabeth, New Jersey."  over scene 1
+#    6.0 to  9.1  "Five bedrooms and three baths on two levels."               scene 1, beds/baths
+#    9.5 to 11.5  "Renovated in 2026."                                          scene 2, work items
+#   11.9 to 12.9  "Assigned parking"                                            scene 3, parking
+#   13.3 to 16.1  "and about 33 minutes by train to Penn Station."              scene 4, train
+#   16.8 to 19.3  "$4,500 a month with an option to buy."                       end card
+#   20.0 to 21.2  "Call for the written terms."                                 end card
+# Every crossfade sits in the pause between two sentences.
+VO = ROOT / 'ads' / 'rto-vo' / 'vo-rto-4500-gia.wav'
+VO_DELAY = 0.15
+FPS = 30
+XF = 10 / FPS                        # crossfade between scenes
+CUTS = [9.1, 11.567, 13.0, 16.167]   # where scenes 2, 3, 4 and the end card start fading in
+TOTAL = 22.4                         # the voice ends at 21.2 s; the end card holds about 1.2 s more
+
+# (clips, headline, sub). A clip is (source, start, cut): `cut` is the scene time where the next
+# clip of the same scene fades in, None for the last one. Scene 1 plays under the opening line and
+# the beds/baths line, so it moves from the facade to the lower level in the pause after "New Jersey".
+# pays-for-itself shows a burned-in "10 MIN TO NEWARK AIRPORT" tag from about 9 s, so its window
+# stops at 8.93 s. The C3 windows are the ones the earlier cut used, trimmed shorter.
 SCENES = [
-    ('videos/pays-for-itself.mp4', 3.5, 4.0, '5 bed · 3 bath on two levels', 'First floor plus a bonus lower level'),
-    ('ads/C3_separate-everything.mp4', 28.5, 3.5, 'Renovated in 2026', 'Central air and separate utilities'),
-    ('ads/C3_separate-everything.mp4', 46.0, 3.5, 'Bonus lower level', 'Two more bedrooms and a bath'),
-    ('ads/C3_separate-everything.mp4', 9.5, 3.0, 'Assigned parking', 'Garage available. Laundry hookups in the unit.'),
-    ('ads/C3_separate-everything.mp4', 3.5, 3.5, 'About 33 min by train<br>to NY Penn Station', 'Elizabeth station is 0.6 mi away'),
+    ([('videos/pays-for-itself.mp4', 3.5, 5.1), ('ads/C3_separate-everything.mp4', 46.0, None)],
+     '5 bed · 3 bath on two levels', 'First floor plus a bonus lower level'),
+    ([('ads/C3_separate-everything.mp4', 28.5, None)],
+     'New roof, new central air', 'New kitchens in both units, updated\u00a0baths, refinished wood floors'),
+    ([('ads/C3_separate-everything.mp4', 9.5, None)],
+     'Assigned parking', 'Garage available. Laundry hookups in the unit.'),
+    ([('ads/C3_separate-everything.mp4', 3.5, None)],
+     'About 33 min by train<br>to NY Penn Station', 'Elizabeth station is 0.6 mi away'),
 ]
-END_DUR = 4.5
-XF = 0.35            # crossfade between scenes
+assert len(CUTS) == len(SCENES)
 
 CSS = """
 *{box-sizing:border-box;margin:0;padding:0}
@@ -78,8 +102,14 @@ def chrome_html(rent):
 <div class="broker">{EHO.replace('width="78" height="78"','width="44" height="44"')}<p><b>Improov Homes, Licensed Real Estate Broker</b></p></div>
 </body></html>"""
 
+# per-scene type sizes that keep the text inside its band above the card (y 448 to 660):
+# the work scene keeps its headline on one line and lets the five items wrap to two
+# (a no-break space keeps "updated baths" together, so the break falls after "units,")
+STYLE = {'New roof, new central air': '.h{font-size:64px}.s{font-size:32px}'}
+
 def text_html(head, sub):
-    return f"""<!doctype html><html><head><meta charset="utf-8"><style>{CSS}</style></head><body>
+    extra = STYLE.get(head, '')
+    return f"""<!doctype html><html><head><meta charset="utf-8"><style>{CSS}{extra}</style></head><body>
 <div class="txt"><p class="h">{head}</p><p class="s">{html.escape(sub)}</p></div></body></html>"""
 
 EHO = """<svg viewBox="0 0 64 64" width="78" height="78"><path d="M4 30 32 10l28 20" fill="none" stroke="currentColor" stroke-width="4"/>
@@ -107,7 +137,7 @@ body{{background:rgba(15,21,18,.9)}}
 <div class="k">Rent-to-own only</div>
 <p class="rent">${rent:,}<small> a month</small></p>
 <p class="what">{CFG['beds']} bed · {CFG['baths']} bath on two levels<br>{html.escape(CFG['address'])}</p>
-<p class="ask">Rent now with an option to buy.<br>Call for the written terms.</p>
+<p class="ask">Rent now with an option to buy.<br>Call Roi for the written terms.</p>
 <div class="call"><svg viewBox="0 0 24 24" width="58" height="58" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2Z"/></svg>{CFG['cta']}</div>
 <div class="legal"><span class="eho">{EHO}<i>Equal Housing<br>Opportunity</i></span><p><b>Improov Homes, Licensed Real Estate Broker</b>Imbar Meidani, Principal Broker<br>Terms on request. Subject to application approval.</p></div>
 </div></body></html>"""
@@ -117,12 +147,13 @@ def still_html(rent, bg_uri):
     return f"""<!doctype html><html><head><meta charset="utf-8"><style>
 *{{box-sizing:border-box;margin:0;padding:0}}
 html,body{{width:1080px;height:1350px;overflow:hidden;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;background:#0F1512}}
-.photo{{position:absolute;left:0;top:0;width:1080px;height:700px;background:url('{bg_uri}') center 22%/cover}}
+.photo{{position:absolute;left:0;top:0;width:1080px;height:640px;background:url('{bg_uri}') center 22%/cover}}
 .pill{{position:absolute;left:56px;top:52px;background:#C9A24E;color:#0F1512;font-weight:800;font-size:30px;letter-spacing:.08em;text-transform:uppercase;padding:12px 20px 10px;border-radius:10px}}
-.body{{position:absolute;left:0;top:700px;width:100%;height:650px;padding:52px 56px 44px;color:#fff;display:flex;flex-direction:column}}
+.body{{position:absolute;left:0;top:640px;width:100%;height:710px;padding:50px 56px 44px;color:#fff;display:flex;flex-direction:column}}
 .rent{{font-size:120px;font-weight:800;letter-spacing:-.045em;line-height:.95}}
 .rent small{{font-size:46px;font-weight:700;color:#C8D2CC;letter-spacing:-.02em}}
 .what{{margin-top:22px;font-size:44px;font-weight:700;letter-spacing:-.02em;line-height:1.15}}
+.work{{margin-top:18px;font-size:32px;color:#fff;font-weight:600;line-height:1.28;letter-spacing:-.01em;text-wrap:balance}}
 .ask{{margin-top:16px;font-size:34px;color:#C8D2CC;font-weight:500;line-height:1.3}}
 .legal{{margin-top:auto;display:flex;justify-content:space-between;align-items:flex-end;color:#C8D2CC;font-size:24px;font-weight:500;line-height:1.35}}
 .legal b{{color:#fff;font-size:30px;display:block}}
@@ -134,6 +165,7 @@ html,body{{width:1080px;height:1350px;overflow:hidden;font-family:'Helvetica Neu
 <div class="body">
 <p class="rent">${rent:,}<small> a month</small></p>
 <p class="what">{CFG['beds']} bed · {CFG['baths']} bath on two levels<br>{html.escape(CFG['address'])}</p>
+<p class="work">{html.escape(CFG['work'])}</p>
 <p class="ask">Rent now with an option to buy. {CFG['cta']} for the written terms.</p>
 <div class="legal"><p><b>Improov Homes, Licensed Real Estate Broker</b>Terms on request. Subject to application approval.</p><span class="eho">{EHO.replace('width="78" height="78"','width="64" height="64"')}<i>Equal Housing<br>Opportunity</i></span></div>
 </div></body></html>"""
@@ -165,7 +197,7 @@ def build(rent):
         b = p.chromium.launch()
         page = b.new_page(device_scale_factor=1)
         render(page, chrome_html(rent), wd / 'chrome.png')
-        for i, (_, _, _, head, sub) in enumerate(SCENES):
+        for i, (_, head, sub) in enumerate(SCENES):
             render(page, text_html(head, sub), wd / f'text{i}.png')
         render(page, end_html(rent), wd / 'end.png')
         # 4:5 still: crop top of the facade frame
@@ -175,54 +207,101 @@ def build(rent):
         render(page, still_html(rent, uri), OUT / f'{tag}_feed-4x5.png', 1080, 1350, transparent=False)
         b.close()
 
-    # scenes: clip + chrome + text fading in
+    # scenes: card footage (one clip, or several crossfaded) + chrome + text fading in
+    durs, end_dur = scene_lengths()
     parts = []
-    for i, (src, start, dur, _, _) in enumerate(SCENES):
+    for i, ((clips, _, _), dur) in enumerate(zip(SCENES, durs)):
         out = wd / f's{i}.mp4'
-        run(['ffmpeg', '-y', '-loglevel', 'error', '-ss', str(start), '-t', str(dur), '-i', str(ROOT / src),
-             '-loop', '1', '-t', str(dur), '-i', str(wd / 'chrome.png'),
-             '-loop', '1', '-t', str(dur), '-i', str(wd / f'text{i}.png'),
-             '-filter_complex',
-             f'[0:v]scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},'
-             f'crop={W}:{SRC_BOT - SRC_TOP}:0:{SRC_TOP},scale={CARD_W}:{CARD_H},fps=30,setsar=1[v];'
-             f'color=c=0x0F1512:s={W}x{H}:r=30:d={dur}[bg];[bg][v]overlay={CARD_X}:{CARD_Y}[bv];'
-             f'[2:v]format=rgba,fade=t=in:st=0.15:d=0.35:alpha=1[t];'
-             f'[bv][1:v]overlay=0:0[c];[c][t]overlay=0:0,format=yuv420p[o]',
-             '-map', '[o]', '-an', '-c:v', 'libx264', '-preset', 'medium', '-crf', '18', '-r', '30', str(out)])
+        ins, fc = [], []
+        for j, (src, start, cut) in enumerate(clips):
+            t0 = clips[j - 1][2] if j else 0.0
+            d = (cut + XF if cut is not None else dur) - t0
+            ins += ['-ss', str(start), '-t', f'{d:.4f}', '-i', str(ROOT / src)]
+            fc.append(f'[{j}:v]scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},'
+                      f'crop={W}:{SRC_BOT - SRC_TOP}:0:{SRC_TOP},scale={CARD_W}:{CARD_H},fps={FPS},setsar=1,'
+                      f'format=yuv420p,trim=duration={d:.4f},setpts=PTS-STARTPTS[c{j}]')
+        card = 'c0'
+        for j in range(1, len(clips)):
+            fc.append(f'[{card}][c{j}]xfade=transition=fade:duration={XF:.4f}:offset={clips[j - 1][2]:.4f}[cx{j}]')
+            card = f'cx{j}'
+        n = len(clips)
+        ins += ['-loop', '1', '-t', f'{dur:.4f}', '-i', str(wd / 'chrome.png'),
+                '-loop', '1', '-t', f'{dur:.4f}', '-i', str(wd / f'text{i}.png')]
+        fc += [f'color=c=0x0F1512:s={W}x{H}:r={FPS}:d={dur:.4f}[bg]', f'[bg][{card}]overlay={CARD_X}:{CARD_Y}[bv]',
+               f'[{n + 1}:v]format=rgba,fade=t=in:st=0.15:d=0.35:alpha=1[t]',
+               f'[bv][{n}:v]overlay=0:0[c]', '[c][t]overlay=0:0,format=yuv420p[o]']
+        run(['ffmpeg', '-y', '-loglevel', 'error', *ins, '-filter_complex', ';'.join(fc),
+             '-map', '[o]', '-an', '-t', f'{dur:.4f}', '-c:v', 'libx264', '-preset', 'medium', '-crf', '18',
+             '-r', str(FPS), str(out)])
         parts.append((out, dur))
     # end card over a slow push on the facade
     end = wd / 'end.mp4'
-    frames = int(END_DUR * 30)
+    frames = round(end_dur * FPS)
     # one still frame in, `frames` frames out: zoompan must not see a looped input
     run(['ffmpeg', '-y', '-loglevel', 'error', '-i', str(facade),
-         '-loop', '1', '-t', str(END_DUR), '-i', str(wd / 'end.png'),
+         '-loop', '1', '-t', f'{end_dur:.4f}', '-i', str(wd / 'end.png'),
          '-filter_complex',
-         f"[0:v]scale={int(W*1.25)}:{int(H*1.25)},zoompan=z='min(zoom+0.0005,1.06)':d={frames}:s={W}x{H}:fps=30,"
-         f"gblur=sigma=6,setsar=1,trim=duration={END_DUR}[bgz];"
+         f"[0:v]scale={int(W*1.25)}:{int(H*1.25)},zoompan=z='min(zoom+0.0005,1.06)':d={frames}:s={W}x{H}:fps={FPS},"
+         f"gblur=sigma=6,setsar=1,trim=duration={end_dur:.4f}[bgz];"
          f"[1:v]format=rgba,fade=t=in:st=0:d=0.4:alpha=1[e];[bgz][e]overlay=0:0:shortest=1,format=yuv420p[o]",
-         '-map', '[o]', '-an', '-t', str(END_DUR), '-c:v', 'libx264', '-preset', 'medium', '-crf', '18', '-r', '30', str(end)])
-    parts.append((end, END_DUR))
+         '-map', '[o]', '-an', '-t', f'{end_dur:.4f}', '-c:v', 'libx264', '-preset', 'medium', '-crf', '18',
+         '-r', str(FPS), str(end)])
+    parts.append((end, end_dur))
 
-    # chain with crossfades
-    inputs, fc, prev, offset = [], [], '0:v', 0.0
-    for k, (path, dur) in enumerate(parts):
+    # chain with crossfades; each one starts at its CUTS time
+    inputs, fc, prev = [], [], '0:v'
+    for path, _ in parts:
         inputs += ['-i', str(path)]
     acc = parts[0][1]
     for k in range(1, len(parts)):
         offset = acc - XF
+        assert abs(offset - CUTS[k - 1]) < 0.02, (offset, CUTS[k - 1])
         label = f'x{k}'
-        fc.append(f'[{prev}][{k}:v]xfade=transition=fade:duration={XF}:offset={offset:.3f}[{label}]')
+        fc.append(f'[{prev}][{k}:v]xfade=transition=fade:duration={XF:.4f}:offset={offset:.4f}[{label}]')
         prev = label
         acc = offset + parts[k][1]
     final = OUT / f'{tag}_reel-9x16.mp4'
     run(['ffmpeg', '-y', '-loglevel', 'error', *inputs, '-filter_complex', ';'.join(fc),
-         '-map', f'[{prev}]', '-c:v', 'libx264', '-preset', 'slow', '-crf', '20', '-pix_fmt', 'yuv420p',
-         '-movflags', '+faststart', '-r', '30', str(final)])
+         '-map', f'[{prev}]', '-frames:v', str(round(TOTAL * FPS)),   # xfade can leave one extra frame
+         '-c:v', 'libx264', '-preset', 'slow', '-crf', '20', '-pix_fmt', 'yuv420p',
+         '-movflags', '+faststart', '-r', str(FPS), str(final)])
     # contact sheet for review
     run(['ffmpeg', '-y', '-loglevel', 'error', '-i', str(final), '-vf', 'fps=1/2,scale=270:-2,tile=6x2',
          '-frames:v', '1', str(WORK / f'{tag}_sheet.jpg')])
-    print(final, f'{acc:.1f}s')
+    print(final, f'{acc:.2f}s')
+    return final
+
+def scene_lengths():
+    """Scene k lasts until scene k+1 has faded in from CUTS[k]; the end card runs to TOTAL."""
+    starts = [0.0] + CUTS[:-1]
+    durs = [round((CUTS[k] - starts[k] + XF) * FPS) / FPS for k in range(len(SCENES))]
+    return durs, round((TOTAL - CUTS[-1]) * FPS) / FPS
+
+def add_voice(silent, out):
+    """Lay the Gia voice under a silent reel: VO_DELAY late, loudnorm to -16 LUFS in two passes,
+    48 kHz AAC, padded to the video's length with a short fade, faststart. Video is copied."""
+    ms = round(VO_DELAY * 1000)
+    norm = 'loudnorm=I=-16:TP=-1.5:LRA=11'
+    log = subprocess.run(['ffmpeg', '-hide_banner', '-nostats', '-i', str(VO), '-af',
+                          f'adelay={ms}|{ms},{norm}:print_format=json', '-f', 'null', '-'],
+                         check=True, capture_output=True, text=True).stderr
+    m = json.loads(log[log.rindex('{'):log.rindex('}') + 1])
+    measured = (f":measured_I={m['input_i']}:measured_TP={m['input_tp']}:measured_LRA={m['input_lra']}"
+                f":measured_thresh={m['input_thresh']}:offset={m['target_offset']}:linear=true")
+    run(['ffmpeg', '-y', '-loglevel', 'error', '-i', str(silent), '-i', str(VO), '-filter_complex',
+         f'[1:a]adelay={ms}|{ms},{norm}{measured},aresample=48000,apad,atrim=0:{TOTAL},'
+         f'afade=t=out:st={TOTAL - 0.35:.2f}:d=0.35[a]',
+         '-map', '0:v', '-map', '[a]', '-c:v', 'copy', '-c:a', 'aac', '-b:a', '160k',
+         '-movflags', '+faststart', str(out)])
+    print(out)
 
 if __name__ == '__main__':
     for r in (sys.argv[1:] or ['4500']):
-        build(int(r))
+        final = build(int(r))
+        if int(r) == 4500:          # the voice says $4,500
+            lead = ROOT / 'rent-to-own' / 'media' / 'lead.mp4'
+            add_voice(final, lead)
+            # poster: scene 1 on the facade with its text in, 720 x 1280 like the page expects
+            run(['ffmpeg', '-y', '-loglevel', 'error', '-ss', '2', '-i', str(lead), '-frames:v', '1',
+                 '-vf', 'scale=720:1280:flags=lanczos', '-q:v', '3',
+                 str(ROOT / 'rent-to-own' / 'img' / 'lead-poster.jpg')])

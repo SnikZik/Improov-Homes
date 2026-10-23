@@ -18,7 +18,7 @@ html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased}
 h1,h2,h3,p,ul,ol,figure{margin:0}
 ul,ol{padding-left:1.2em}
-img,video{display:block;max-width:100%}
+img,video{display:block;max-width:100%;height:auto}
 a{color:var(--accent);font-weight:600}
 .wrap{width:100%;max-width:1080px;margin:0 auto;padding:0 20px}
 
@@ -27,6 +27,7 @@ a{color:var(--accent);font-weight:600}
 .top h1{margin-top:16px;font-size:clamp(30px,7vw,46px);line-height:1.08;letter-spacing:-.03em}
 .top p{margin-top:12px;color:#C8D2CC;max-width:62ch}
 .facts{margin-top:22px;display:flex;flex-wrap:wrap;gap:8px;padding:0;list-style:none}
+s.was{color:inherit;opacity:.7;text-decoration-thickness:.1em;text-decoration-color:var(--gold)}
 .facts li{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:8px 12px;font-size:15px;font-weight:600}
 
 .sec{padding:52px 0;border-bottom:1px solid var(--line)}
@@ -40,6 +41,9 @@ a{color:var(--accent);font-weight:600}
 .card__label{padding:12px 16px;font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-3);border-bottom:1px solid var(--line)}
 .card__body{padding:16px}
 .card video,.card img{width:100%;background:#000}
+.grid--4{grid-template-columns:repeat(2,1fr);gap:16px}
+.grid--4 .card__label{font-size:12px;padding:10px 12px}
+.grid--4 .card__body{padding:12px}
 
 /* feed mock */
 .fb{max-width:520px}
@@ -73,6 +77,7 @@ a{color:var(--accent);font-weight:600}
 
 @media (min-width:760px){
   .grid--3{grid-template-columns:1.25fr 1fr 1fr;align-items:start}
+  .grid--4{grid-template-columns:repeat(4,1fr);align-items:start}
   .grid--2{grid-template-columns:1fr 1fr;align-items:start}
   .phones{grid-template-columns:repeat(3,1fr)}
 }
@@ -84,12 +89,13 @@ a{color:var(--accent);font-weight:600}
   <div class="wrap">
     <p class="pill">For approval</p>
     <h1>Open house ads for 1057 Bond St</h1>
-    <p>Prepared for Imbar Meidani, Improov Homes. Ads, ad text and the landing page for the open house this weekend. Please confirm the items at the bottom before we go live.</p>
+    <p>Prepared for Imbar Meidani and Roi Vana, Improov Homes. Ads, ad text and the landing page for the open house this weekend, updated Oct 23 with your notes: the old price crossed out, the full list of work, and Roi on the phone. Please confirm the items at the bottom before we go live.</p>
     <ul class="facts">
-      <li>Price reduced $100,000, now $899,000</li>
+      <li><s class="was">$999,000</s> $899,000 · price reduced $100,000</li>
       <li>Sat, Oct 24, 12 to 3 PM</li>
       <li>Sun, Oct 25, 1 to 3 PM</li>
       <li>Rent to own $4,500 a month</li>
+      <li>Call Roi at (551) 324-1057</li>
     </ul>
   </div>
 </header>
@@ -113,10 +119,10 @@ a{color:var(--accent);font-weight:600}
 Saturday, Oct 24 · 12 to 3 PM
 Sunday, Oct 25 · 1 to 3 PM
 
-Legal two-family in New Jersey, renovated in 2026... <b>See more</b></p>
-        <img src="open-house_feed-4x5.png" alt="Feed ad: open house, price reduced $100,000, now $899,000, Saturday and Sunday times" width="1080" height="1350" loading="lazy">
+Legal two-family in New Jersey, renovated in 2026. New roof... <b>See more</b></p>
+        <img src="open-house_feed-4x5.png" alt="Feed ad: open house, the old price crossed out, now $899,000, the work list, Saturday and Sunday times, Call Roi" width="1080" height="1350" loading="lazy">
         <div class="fb__bar">
-          <div><p class="fb__url">snikzik.github.io</p><p class="fb__hl">Open House in Elizabeth, New Jersey · $899,000</p><p class="fb__desc">Sat &amp; Sun open house · Call (551) 324-1057</p></div>
+          <div><p class="fb__url">snikzik.github.io</p><p class="fb__hl">Open House in Elizabeth, New Jersey · $899,000</p><p class="fb__desc">Sat &amp; Sun open house · Call Roi at (551) 324-1057</p></div>
           <span class="fb__cta">Learn more</span>
         </div>
       </div>
@@ -127,18 +133,19 @@ Legal two-family in New Jersey, renovated in 2026... <b>See more</b></p>
 Saturday, Oct 24 · 12 to 3 PM
 Sunday, Oct 25 · 1 to 3 PM
 
-Legal two-family in New Jersey, renovated in 2026: new roof, new kitchen, central air, refinished wood floors, parking available. Live in one unit and let the rent from the other help pay the mortgage. Low-down-payment financing with no mortgage insurance is available to qualified owner-occupant buyers, subject to lender approval.
+Legal two-family in New Jersey, renovated in 2026. New roof. New central air. New kitchens in both units. Updated baths. Refinished wood floors. Parking available. Live in one unit and let the rent from the other help pay the mortgage. Low-down-payment financing with no mortgage insurance is available to qualified owner-occupant buyers, subject to lender approval.
 
 From Elizabeth, NJ it is about 33 minutes by train to NYC Penn Station.
 
-Not ready to buy? Rent to own. The first-floor unit plus the finished lower level is $4,500 a month: 3 bedrooms, 2 full baths and the updated kitchen on the main level, two bonus rooms and a full bath below. Rent now with the option to buy, and ask for the written terms at the open house.
+Not ready to buy? Rent to own. The first-floor unit plus the finished lower level is $4,500 a month: 3 bedrooms, 2 full baths and the new kitchen on the main level, two bonus rooms and a full bath below. Rent now with the option to buy, and ask for the written terms at the open house.
 
-Call (551) 324-1057.
+Call Roi at (551) 324-1057.
 Improov Homes, Licensed Real Estate Broker (New Jersey). Equal Housing Opportunity.</dd></div>
         <div><dt>Headline</dt><dd>Open House in Elizabeth, New Jersey · $899,000</dd></div>
-        <div><dt>Description</dt><dd>Sat &amp; Sun open house · Call (551) 324-1057</dd></div>
+        <div><dt>Description</dt><dd>Sat &amp; Sun open house · Call Roi at (551) 324-1057</dd></div>
         <div><dt>Button</dt><dd>Learn more (opens the open house page)</dd></div>
       </dl>
+      <p class="note">Plain text on Meta cannot be crossed out, so the ad text never names the old price. It says "Price reduced $100,000. Now $899,000." The images and videos show <s class="was" style="color:var(--ink-3)">$999,000</s> crossed out.</p>
     </div>
   </div>
 </section>
@@ -148,21 +155,26 @@ Improov Homes, Licensed Real Estate Broker (New Jersey). Equal Housing Opportuni
   <div class="wrap">
     <p class="eyebrow">Ads 2 and 3 · Stories and Reels</p>
     <h2 class="h2">Full screen versions</h2>
-    <p class="lede">Same text as the feed ad. The story image runs inside Ad 1 when Meta shows it full screen. The voiceover video uses only the walkthrough you sent on Oct 21; the music video also uses two exterior shots from your earlier clips.</p>
-    <div class="grid grid--3">
+    <p class="lede">Same text as the feed ad. The story image runs inside Ad 1 when Meta shows it full screen. Both voice videos use Gia's new take: "now eight hundred ninety-nine thousand", "new roof, new central air, and new kitchens in both units", and they end with "Call 551 324 1057". The first uses only the walkthrough you sent on Oct 21; the other two videos also use two exterior shots from your earlier clips.</p>
+    <div class="grid grid--4">
       <div class="card">
-        <p class="card__label">Video with voiceover · 21 s</p>
+        <p class="card__label">Voiceover, walkthrough only · 28 s</p>
         <video src="../open-house-vo/open-house-vo_reel-9x16.mp4" controls playsinline preload="metadata" width="1080" height="1920"></video>
-        <div class="card__body"><p class="note">Voice: Gia. The same video plays on the open house page.</p></div>
+        <div class="card__body"><p class="note">Voice: Gia. The open house page plays its own version, without the phone number.</p></div>
       </div>
       <div class="card">
-        <p class="card__label">Video, music only · 22 s</p>
+        <p class="card__label">Voiceover, with exterior shots · 28 s</p>
+        <video src="open-house_reel-9x16_gia.mp4" controls playsinline preload="metadata" width="1080" height="1920"></video>
+        <div class="card__body"><p class="note">Same voice, cut to the footage of the music video.</p></div>
+      </div>
+      <div class="card">
+        <p class="card__label">Video, music only · 24 s</p>
         <video src="open-house_reel-9x16.mp4" controls playsinline preload="metadata" width="1080" height="1920"></video>
         <div class="card__body"><p class="note">Music is added from the Meta library at upload.</p></div>
       </div>
       <div class="card">
         <p class="card__label">Story image</p>
-        <img src="open-house_story-9x16.png" alt="Story ad: open house, $899,000, Saturday and Sunday times" width="1080" height="1920" loading="lazy">
+        <img src="open-house_story-9x16.png" alt="Story ad: open house, the old price crossed out, now $899,000, the work list, Saturday and Sunday times, Call Roi" width="1080" height="1920" loading="lazy">
       </div>
     </div>
   </div>
@@ -173,11 +185,11 @@ Improov Homes, Licensed Real Estate Broker (New Jersey). Equal Housing Opportuni
   <div class="wrap">
     <p class="eyebrow">Where the ad leads</p>
     <h2 class="h2">The open house page</h2>
-    <p class="lede"><a href="https://snikzik.github.io/Improov-Homes/open-house/" target="_blank" rel="noopener">snikzik.github.io/Improov-Homes/open-house</a>. One button only: Call. Before the number shows, two short questions: would you live in New Jersey, and buy or rent to own. After the open house ends on Sunday at 3 PM the page switches by itself to "call to set up a private showing".</p>
+    <p class="lede"><a href="https://snikzik.github.io/Improov-Homes/open-house/" target="_blank" rel="noopener">snikzik.github.io/Improov-Homes/open-house</a>. Two buttons: Call Roi now, and RSVP &amp; add to calendar. Before the number shows, two short questions: would you live in New Jersey, and buy or rent to own. After the open house ends on Sunday at 3 PM the page switches by itself to "Call Roi to set up a private showing".</p>
     <div class="phones">
-      <figure class="phone"><img src="review/lp-hero.jpg" alt="Top of the open house page on a phone" width="390" height="844" loading="lazy"><figcaption><b>First screen.</b> Open house in New Jersey, price, both days, Call.</figcaption></figure>
-      <figure class="phone"><img src="review/lp-sticky.jpg" alt="Call button fixed at the bottom of the screen" width="390" height="844" loading="lazy"><figcaption><b>While scrolling.</b> The Call button stays at the bottom of the screen.</figcaption></figure>
-      <figure class="phone"><img src="review/lp-call.jpg" alt="Call window asking if you would live in New Jersey" width="390" height="844" loading="lazy"><figcaption><b>Call.</b> Two questions first: would you live in New Jersey, then buy or rent to own. A "No" to New Jersey does not get the number.</figcaption></figure>
+      <figure class="phone"><img src="review/lp-hero.jpg" alt="Top of the open house page on a phone" width="390" height="844" loading="lazy"><figcaption><b>First screen.</b> Open house in New Jersey, <s class="was" style="color:var(--ink-3)">$999,000</s> crossed out, $899,000, both days, Call Roi now.</figcaption></figure>
+      <figure class="phone"><img src="review/lp-sticky.jpg" alt="Call button fixed at the bottom of the screen" width="390" height="844" loading="lazy"><figcaption><b>While scrolling.</b> Call Roi now and RSVP stay at the bottom of the screen.</figcaption></figure>
+      <figure class="phone"><img src="review/lp-call.jpg" alt="Call window asking if you would live in New Jersey" width="390" height="844" loading="lazy"><figcaption><b>Call.</b> Two questions first: would you live in New Jersey, then buy or rent to own. A "No" to New Jersey does not get the number. The last step reads "Call Roi" with the number.</figcaption></figure>
     </div>
   </div>
 </section>
@@ -188,7 +200,7 @@ Improov Homes, Licensed Real Estate Broker (New Jersey). Equal Housing Opportuni
     <p class="eyebrow">What reaches your team</p>
     <h2 class="h2">Better calls, not more calls</h2>
     <ol class="steps">
-      <li><b>Call:</b> rings the 1057 Bond line (551) 324-1057 as today. Only people who say they would live in New Jersey get the number, and the page records whether they want to buy or rent to own.</li>
+      <li><b>Call:</b> rings the 1057 Bond line (551) 324-1057 as today, and Roi answers. Only people who say they would live in New Jersey get the number, and the page records whether they want to buy or rent to own.</li>
       <li><b>Reporting:</b> each visitor who passes the questions and taps Call counts once as a lead for the ad that brought them, so we can see which ad brings real buyers.</li>
     </ol>
   </div>
@@ -200,10 +212,9 @@ Improov Homes, Licensed Real Estate Broker (New Jersey). Equal Housing Opportuni
     <p class="eyebrow">Before we go live</p>
     <h2 class="h2">Please confirm</h2>
     <ul class="check">
-      <li>The $899,000 price is on the MLS. On Oct 21 the public listing sites still showed $999,000.</li>
-      <li>The roof is new. It is in the ad text and on the page.</li>
+      <li>The $899,000 price is on the MLS. On Oct 21 the public listing sites still showed the old price.</li>
       <li>The written rent-to-own terms will be ready at the open house.</li>
-      <li>Someone will answer (551) 324-1057 all weekend, including during the open house.</li>
+      <li>Roi will answer (551) 324-1057 all weekend, including during the open house.</li>
     </ul>
     <p class="note">The ads run as a Housing ad on Meta, as required, and end on Sunday, Oct 25 at 3 PM.</p>
   </div>
@@ -212,7 +223,7 @@ Improov Homes, Licensed Real Estate Broker (New Jersey). Equal Housing Opportuni
 </main>
 
 <footer class="foot">
-  <div class="wrap">Prepared by SNIR for Improov Homes, Licensed Real Estate Broker · Oct 22, 2026</div>
+  <div class="wrap">Prepared by SNIR for Improov Homes, Licensed Real Estate Broker · Updated Oct 23, 2026</div>
 </footer>
 
 </body>

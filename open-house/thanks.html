@@ -72,7 +72,7 @@ body{padding-bottom:0}
       <div><p>Sunday, Oct 25, 1 to 3 PM</p><div class="thx__cal" data-both="sun"></div></div>
     </div>
 
-    <p class="thx__ask">Questions before you come? <a href="./#call" data-ask="call">Call us</a></p>
+    <p class="thx__ask">Questions before you come? <a href="./#call" data-ask="call">Call Roi</a></p>
     <a class="thx__back" href="./">Back to the house</a>
   </main>
 
@@ -117,7 +117,7 @@ const google = d => 'https://calendar.google.com/calendar/render?action=TEMPLATE
   + '&text=' + encodeURIComponent('Open house at 1057 Bond St, Elizabeth NJ')
   + '&dates=' + d.start + '/' + d.end + '&ctz=America/New_York'
   + '&location=' + encodeURIComponent('1057 Bond St, Elizabeth, NJ 07201')
-  + '&details=' + encodeURIComponent(d.label + '. Legal two family, renovated in 2026, now $899,000. Questions? Call from the open house page: ' + OH_URL + '#call');
+  + '&details=' + encodeURIComponent(d.label + '. Legal two family, renovated in 2026, now $899,000. Questions? Call Roi from the open house page: ' + OH_URL + '#call');
 const android = /android/i.test(navigator.userAgent);
 const calButtons = (d, day) => {
   // Android opens Google Calendar; iPhone, Mac and Outlook take the .ics file
@@ -164,7 +164,7 @@ if (window.top === window.self) {
     track('RSVPBooked', params);
     try { if (typeof window.fbq === 'function') window.fbq('track', 'Lead', { lead_type: 'rsvp', content_name: '1057 Bond open house', ...params }); } catch (e) { /* ignore */ }
   }
-  // "Call us" goes back to the open house page and opens the call questions there;
+  // "Call Roi" goes back to the open house page and opens the call questions there;
   // the call Lead is counted on that page, on the real tap to call
   document.querySelector('[data-ask]').addEventListener('click', () => {
     track('CallLinkClick', { location: 'thanks', ...utm });

@@ -5,22 +5,30 @@ offer on top, broker line at the bottom, open house details on the end card.
 Footage: Imbar's walkthrough from WhatsApp (464x624, silent) plus two exterior shots from her
 earlier 1080x1920 clips. No audio: add music from Meta's library at upload.
 
+23 Oct client feedback: the old price is shown crossed out ($999,000 in <s>) before the new
+one, and the work list reads exactly "New roof. New central air. New kitchens in both units.
+Updated baths. Refinished wood floors." $999,000 never appears without the strikethrough.
+
 Usage: python3 ads/oh-src/build_open_house.py [path/to/walkthrough.mp4]
+Scratch files go to $OH_WORK (default: the system temp folder).
 """
-import subprocess, sys, pathlib, html, shutil, base64
+import subprocess, sys, pathlib, html, shutil, base64, os, re, tempfile
 from playwright.sync_api import sync_playwright
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]          # repo root
 OUT = ROOT / 'ads' / 'open-house'
-WORK = pathlib.Path('/private/tmp/claude-501/-Users-s/380d5559-9905-4a9f-8ab1-c17ecde0c63a/scratchpad/oh/work')
+WORK = pathlib.Path(os.environ.get('OH_WORK', pathlib.Path(tempfile.gettempdir()) / 'bond-oh')) / 'oh'
 WALK = pathlib.Path(sys.argv[1]) if len(sys.argv) > 1 else pathlib.Path('/Users/s/Downloads/WhatsApp Video 2026-10-21 at 16.22.19.mp4')
 
 CFG = {
     'phone': '(551) 324-1057',
+    'caller': 'Roi',                       # Roi Vana answers this line (no title, client's wish)
     'address': '1057 Bond St · Elizabeth, New Jersey',
     'state': 'Elizabeth, New Jersey',
     'price': '$899,000',
+    'was': '$999,000',                     # old price: only ever shown inside <s>
     'cut': 'Price reduced $100,000',
+    'work': 'New roof. New central air. New kitchens in both units. Updated baths. Refinished wood floors.',
     'dates': [('Sat, Oct 24', '12 to 3 PM'), ('Sun, Oct 25', '1 to 3 PM')],
     'chip': 'Sat 10/24 · Sun 10/25',
     'rto': 'Not ready to buy? Rent to own at $4,500 a month.',
@@ -29,15 +37,31 @@ CFG = {
 W, H = 1080, 1920
 CARD_W, CARD_X, CARD_Y = 740, 170, 676
 SRC_TOP, SRC_BOT = 160, 1300            # rows of the 1080x1920 clips shown in the card
+# Seconds of each 1080x1920 clip that are free of its burned-in captions inside the card crop
+# (checked frame by frame with OCR, 23 Oct). pays-for-itself: "THIS HOUSE PAYS FOR ITSELF" until
+# 3.1 s and "10 MIN TO NEWARK AIRPORT" from 9.2 s. C3: the big price block until 2.5 s and
+# "SEPARATE UTILITIES" until 3.0 s, "GARAGE + 3 SPOTS" from 15.4 s; its small "FOR SALE" banner
+# (rows 100 to 155) stays above SRC_TOP. Every source window must sit inside these, with margin.
+CLEAN = {'videos/pays-for-itself.mp4': (3.5, 8.6), 'ads/C3_separate-everything.mp4': (3.5, 14.6)}
+
+
+def check_window(src, start, dur):
+    """Stop the build if a scene would show a source clip's burned-in caption."""
+    if src in CLEAN:
+        lo, hi = CLEAN[src]
+        if start < lo - 1e-6 or start + dur > hi + 1e-6:
+            sys.exit(f'{src} {start:.2f} to {start + dur:.2f} s leaves the caption-free window {lo} to {hi} s')
 CARD_H = round((SRC_BOT - SRC_TOP) * CARD_W / 1080)
 
 # (source, start, duration, headline, sub). 'WALK' = the WhatsApp walkthrough.
+WAS_NOW = f'<s class="was">{CFG["was"]}</s> {CFG["price"]}'   # crossed-out old price, then the new one
 SCENES = [
-    ('videos/pays-for-itself.mp4', 3.5, 3.6, 'Price reduced $100,000', 'Now $899,000'),
-    ('WALK', 87.5, 3.0, 'New kitchen', 'Renovated in 2026, central air'),
+    ('videos/pays-for-itself.mp4', 3.5, 3.6, WAS_NOW, CFG['cut']),
+    ('WALK', 87.5, 3.2, 'New kitchens<br>in both units', 'New roof. New central air.'),
     ('WALK', 79.0, 2.8, 'Refinished wood floors', 'Legal two-family'),
     ('WALK', 98.6, 3.0, '3 bed · 2 bath', 'On the main level'),
     ('WALK', 33.0, 3.0, 'Finished lower level', 'Two bonus rooms and a full bath'),
+    ('WALK', 39.9, 2.6, 'Updated baths', ''),
     ('ads/C3_separate-everything.mp4', 3.5, 3.4, 'About 33 min by train<br>to NY Penn Station', 'Elizabeth, NJ station is 0.6 mi away'),
 ]
 END_DUR = 5.0
@@ -58,6 +82,8 @@ html,body{width:%dpx;height:%dpx;background:transparent;overflow:hidden;font-fam
 .broker{position:absolute;left:%dpx;right:%dpx;top:%dpx;display:flex;align-items:center;gap:16px;color:#C8D2CC}
 .broker p{font-size:25px;font-weight:600;line-height:1.3}
 .broker b{color:#fff}
+s.was{color:#AEB9B2;font-weight:700;font-size:.6em;letter-spacing:-.02em;margin-right:.12em;
+  text-decoration:line-through;text-decoration-thickness:.09em;text-decoration-color:#E6C77E}
 """ % (W, H, FONT, CARD_X, CARD_X, CARD_X, CARD_X, CARD_X, CARD_X, CARD_Y + CARD_H + 26)
 
 EHO = """<svg viewBox="0 0 64 64" width="78" height="78"><path d="M4 30 32 10l28 20" fill="none" stroke="currentColor" stroke-width="4"/>
@@ -80,8 +106,9 @@ def chrome_html():
 
 
 def text_html(head, sub):
+    sub_p = f'<p class="s">{html.escape(sub)}</p>' if sub else ''
     return f"""<!doctype html><html><head><meta charset="utf-8"><style>{CSS}</style></head><body>
-<div class="txt"><p class="h">{head}</p><p class="s">{html.escape(sub)}</p></div></body></html>"""
+<div class="txt"><p class="h">{head}</p>{sub_p}</div></body></html>"""
 
 
 def dates_html(size):
@@ -95,7 +122,8 @@ body{{background:rgba(15,21,18,.9)}}
 .k{{align-self:flex-start;background:#C9A24E;color:#0F1512;font-weight:800;font-size:36px;letter-spacing:.08em;
   text-transform:uppercase;padding:14px 24px 12px;border-radius:10px}}
 .cut{{margin-top:34px;font-size:40px;font-weight:700;color:#E6C77E;letter-spacing:-.01em}}
-.price{{margin-top:6px;font-size:150px;font-weight:800;letter-spacing:-.045em;line-height:.95}}
+.price{{margin-top:6px;font-size:150px;font-weight:800;letter-spacing:-.045em;line-height:.95;white-space:nowrap}}
+.price s.was{{font-size:.42em;color:#C8D2CC;margin-right:.16em;vertical-align:.32em}}
 .dates{{margin-top:34px;display:grid;gap:10px}}
 .d{{font-size:50px;font-weight:600;letter-spacing:-.02em;color:#C8D2CC}}
 .d b{{color:#fff;font-weight:800}}
@@ -111,10 +139,10 @@ body{{background:rgba(15,21,18,.9)}}
 </style></head><body><div class="wrap">
 <div class="k">Open house · New Jersey</div>
 <p class="cut">{CFG['cut']}</p>
-<p class="price">{CFG['price']}</p>
+<p class="price">{WAS_NOW}</p>
 <div class="dates">{dates_html(50)}</div>
 <p class="addr2">{html.escape(CFG['address'])}</p>
-<div class="call">{PHONE.format(s=54)}Call {CFG['phone']}</div>
+<div class="call">{PHONE.format(s=54)}Call {CFG['caller']} at {CFG['phone']}</div>
 <p class="rto">{CFG['rto']}</p>
 <div class="legal"><span class="eho">{EHO}<i>Equal Housing<br>Opportunity</i></span><p><b>{BROKER}</b>{OFFICE}</p></div>
 </div></body></html>"""
@@ -132,7 +160,10 @@ html,body{{width:{w}px;height:{h}px;overflow:hidden;font-family:{FONT};-webkit-f
 .pill{{position:absolute;left:56px;top:{52 + pad_top}px;background:#C9A24E;color:#0F1512;font-weight:800;font-size:{34 if story else 30}px;letter-spacing:.08em;text-transform:uppercase;padding:12px 20px 10px;border-radius:10px}}
 .body{{position:absolute;left:0;top:{photo_h - 40}px;width:100%;bottom:{250 if story else 0}px;padding:0 56px 44px;color:#fff;display:flex;flex-direction:column}}
 .cut{{font-size:{38 if story else 34}px;font-weight:700;color:#E6C77E}}
-.price{{margin-top:4px;font-size:{136 if story else 116}px;font-weight:800;letter-spacing:-.045em;line-height:.95}}
+.price{{margin-top:4px;font-size:{136 if story else 116}px;font-weight:800;letter-spacing:-.045em;line-height:.95;white-space:nowrap}}
+.price s.was{{color:#C8D2CC;font-weight:700;font-size:.44em;letter-spacing:-.02em;margin-right:.16em;vertical-align:.3em;
+  text-decoration:line-through;text-decoration-thickness:.09em;text-decoration-color:#E6C77E}}
+.work{{margin-top:{14 if story else 10}px;font-size:{31 if story else 27}px;font-weight:600;line-height:1.3;color:#fff;max-width:{900 if story else 940}px}}
 .dates{{margin-top:{30 if story else 22}px;display:grid;gap:8px}}
 .d{{font-size:{46 if story else 40}px;font-weight:600;letter-spacing:-.02em;color:#C8D2CC}}
 .d b{{color:#fff;font-weight:800}}
@@ -147,10 +178,11 @@ html,body{{width:{w}px;height:{h}px;overflow:hidden;font-family:{FONT};-webkit-f
 <div class="photo"></div><div class="pill">Open house · New Jersey</div>
 <div class="body">
 <p class="cut">{CFG['cut']}</p>
-<p class="price">{CFG['price']}</p>
+<p class="price">{WAS_NOW}</p>
 <div class="dates">{dates_html(40)}</div>
 <p class="addr2">{html.escape(CFG['address'])}</p>
-<p class="call">{PHONE.format(s=40 if story else 34)}Call {CFG['phone']}</p>
+<p class="work">{html.escape(CFG['work'])}</p>
+<p class="call">{PHONE.format(s=40 if story else 34)}Call {CFG['caller']} at {CFG['phone']}</p>
 <p class="rto">{CFG['rto']}</p>
 <div class="legal"><p><b>{BROKER}</b>{OFFICE}</p><span class="eho">{EHO.replace('width="78" height="78"','width="60" height="60"')}<i>Equal Housing<br>Opportunity</i></span></div>
 </div></body></html>"""
@@ -168,11 +200,16 @@ def render(page, markup, path, w=W, h=H, transparent=True):
 
 def guard():
     """No em dash, en dash or double hyphen in anything a viewer reads."""
-    texts = [v for v in CFG.values() if isinstance(v, str)] + [d + t for d, t in CFG['dates']]
+    texts = [v for k, v in CFG.items() if isinstance(v, str) and k != 'was'] + [d + t for d, t in CFG['dates']]
     texts += [s[3] + s[4] for s in SCENES] + [BROKER, OFFICE]
     bad = [t for t in texts if any(c in t for c in ('—', '–', '--'))]
     if bad:
         sys.exit(f'dash in copy: {bad}')
+    bare = [t for t in texts if '999' in t.replace(WAS_NOW, '')]
+    if bare:
+        sys.exit(f'old price without the strikethrough: {bare}')
+    for src, start, dur, _, _ in SCENES:
+        check_window(src, start, dur)
 
 
 STILL_AT = 0.7    # walkthrough second with the whole front of the house, straight on (Snir's pick)
@@ -213,7 +250,7 @@ def build():
             render(page, text_html(s[3], s[4]), WORK / f'text{i}.png')
         render(page, end_html(), WORK / 'end.png')
         render(page, still_html(still_bg(720), 1080, 1350, 720), OUT / 'open-house_feed-4x5.png', 1080, 1350, transparent=False)
-        render(page, still_html(still_bg(1000), 1080, 1920, 1000), OUT / 'open-house_story-9x16.png', 1080, 1920, transparent=False)
+        render(page, still_html(still_bg(940), 1080, 1920, 940), OUT / 'open-house_story-9x16.png', 1080, 1920, transparent=False)
         b.close()
 
     parts = []

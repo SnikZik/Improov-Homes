@@ -22,16 +22,16 @@ END:STANDARD
 END:VTIMEZONE
 BEGIN:VEVENT
 UID:1057bond-openhouse-20261025@improovhomes
-DTSTAMP:20261022T220000Z
-SEQUENCE:1
+DTSTAMP:20261023T120000Z
+SEQUENCE:2
 DTSTART;TZID=America/New_York:20261025T130000
 DTEND;TZID=America/New_York:20261025T150000
 SUMMARY:Open house at 1057 Bond St\, Elizabeth NJ
 LOCATION:1057 Bond St\, Elizabeth\, NJ 07201
 URL:https://snikzik.github.io/Improov-Homes/open-house/
 DESCRIPTION:Open house Sunday\, Oct 25\, 1 to 3 PM. Legal two family\, reno
- vated in 2026\, now $899\,000. Questions? Call from the open house page: h
- ttps://snikzik.github.io/Improov-Homes/open-house/#call
+ vated in 2026\, now $899\,000. Questions? Call Roi from the open house pag
+ e: https://snikzik.github.io/Improov-Homes/open-house/
 BEGIN:VALARM
 ACTION:DISPLAY
 DESCRIPTION:Open house at 1057 Bond St

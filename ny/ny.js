@@ -53,6 +53,7 @@ const gateConfig = {
    listings (fact-check run 15 Oct 2026). */
 const subject = {
   price: 899000,               // cut from $999,000 (Oct 2026)
+  oldPrice: 999000,            // shown ONLY inside <s> (struck through), never on its own
   downPercent: '3.5%',
   downPayment: 31465,
   closing: 25000,               // estimate; MLS says the seller will give a concession
@@ -63,6 +64,20 @@ const subject = {
   taxes: 11892,                 // 2025 bill. Roee's $14,144 was the 2023 bill
   unit2Rent: '$2,750'           // Improov's live listing for Unit 2 (Imbar's video says $2,700 to $3,000)
 };
+
+/* The work done, in the client's own words (Imbar and Roi, Oct 2026).
+   Keep this wording; do not shorten it back to "new kitchen, central air". */
+const workDone = [
+  'New roof',
+  'New central air',
+  'New kitchens in both units',
+  'Updated baths',
+  'Refinished wood floors'
+];
+
+/* Who picks up. Roi answers every call on this line. No title for Roi:
+   the broker lines in the final block and footer stay as they are. */
+const answererName = 'Roi';
 
 /* ---------- 5. FINANCING SWITCH (Reg Z) ----------
    Down payment, cash to close and monthly payment are "triggering terms":
@@ -93,7 +108,7 @@ const comparisonConfig = {
     {
       id: 'bond', highlight: true,
       name: '1057 Bond St', area: 'Elizabeth, NJ 07201', status: 'For sale · newly renovated',
-      price: 899000, priceNote: 'list price',
+      price: 899000, priceNote: 'list price', wasPrice: 999000,
       layout: '8 bed · 5 bath', layoutNote: 'Two 3 bed / 2 bath units plus a 2 bed / 1 bath bonus area',
       sqft: '2,700 sq ft', parking: '1-car garage + 2-car driveway',
       taxes: 11892, taxesNote: '2025 bill',
@@ -272,6 +287,8 @@ function renderFacts() {
   const comps = comparisonConfig.properties.filter(p => !p.highlight);
   const values = {
     price: money(subject.price),
+    oldPrice: money(subject.oldPrice),
+    priceCut: money(subject.oldPrice - subject.price),
     downPayment: money(subject.downPayment),
     downPercent: subject.downPercent,
     closing: '~' + money(subject.closing),
@@ -283,6 +300,7 @@ function renderFacts() {
   };
   document.querySelectorAll('[data-fact]').forEach(el => {
     const k = el.dataset.fact;
+    if (k === 'oldPrice' && !el.closest('s')) return;   // the old price is only ever shown struck through
     if (k in values) el.textContent = values[k];
   });
   document.querySelectorAll('.h2 [data-fact="cashToClose"]').forEach(el => { el.textContent = money(subject.cashToClose); });
@@ -305,7 +323,8 @@ function renderCompare() {
   const na = 'n/a';
   const opt = (v, f) => (v === null || v === undefined) ? na : f(v);
   const rows = [
-    { label: 'Price', v: p => money(p.price), s: p => p.priceNote, big: true, key: true },
+    { label: 'Price', v: p => money(p.price), s: p => p.priceNote, big: true, key: true,
+      sHtml: p => p.wasPrice ? `${esc(p.priceNote)}, reduced from <s class="was">${esc(money(p.wasPrice))}</s>` : '' },
     { label: 'Layout', v: p => p.layout, s: p => p.layoutNote },
     { label: 'Living space', v: p => p.sqft },
     { label: 'Parking', v: p => p.parking },
@@ -329,9 +348,9 @@ function renderCompare() {
       <tr class="${r.key ? 'is-key' : ''}">
         <th scope="row"><span class="cmp__k">${esc(r.label)}</span>${r.sub ? `<span class="cmp__ksub">${esc(r.sub)}</span>` : ''}</th>
         ${props.map(p => {
-          const sub = r.s ? r.s(p) : '';
+          const subHtml = (r.sHtml && r.sHtml(p)) || (r.s && r.s(p) ? esc(r.s(p)) : '');   // sHtml is built from escaped parts
           const v = r.v(p);
-          return `<td class="${p.highlight ? 'is-us' : ''}${v === na ? ' is-na' : ''}"><span class="cmp__v${r.big ? ' cmp__v--big' : ''}">${esc(v)}</span>${sub ? `<span class="cmp__s">${esc(sub)}</span>` : ''}</td>`;
+          return `<td class="${p.highlight ? 'is-us' : ''}${v === na ? ' is-na' : ''}"><span class="cmp__v${r.big ? ' cmp__v--big' : ''}">${esc(v)}</span>${subHtml ? `<span class="cmp__s">${subHtml}</span>` : ''}</td>`;
         }).join('')}
       </tr>`).join('');
 
@@ -364,6 +383,9 @@ function renderLists() {
     'Each unit has its own entrance, utilities, heat and AC'
   ].map(t => `<li>${esc(t)}</li>`).join('');
 
+  const work = document.getElementById('workList');
+  if (work) work.innerHTML = workDone.map(t => `<li>${esc(t)}</li>`).join('');
+
   const specs = document.getElementById('specsList');
   if (specs) specs.innerHTML = [
     ['Two-Family', 'Property type'], [String(subject.beds), 'Bedrooms'], [String(subject.baths), 'Bathrooms'],
@@ -371,7 +393,7 @@ function renderLists() {
     ['Garage', '+ off-street parking'], ['Separate', 'Utilities']
   ].map(([v, k]) => `<li><span class="specs__v">${esc(v)}</span><span class="specs__k">${esc(k)}</span></li>`).join('');
 
-  document.querySelectorAll('[data-hours-text]').forEach(el => { el.textContent = 'We answer ' + hoursConfig.label + '.'; });
+  document.querySelectorAll('[data-hours-text]').forEach(el => { el.textContent = answererName + ' picks up ' + hoursConfig.label + '.'; });
   document.querySelectorAll('[data-office-text]').forEach(el => { el.textContent = officeConfig.display; });
 }
 
@@ -425,14 +447,14 @@ function preparePassStep() {
   const open = isOpenNow();
 
   tel.setAttribute('href', 'tel:' + phoneConfig.raw);
-  label.textContent = 'Call ' + phoneConfig.display;
+  label.textContent = 'Call ' + answererName + ' ' + phoneConfig.display;
   tel.hidden = !open;
   closed.hidden = open;
   sub.textContent = open
-    ? 'Tap to call. We answer ' + hoursConfig.label + '.'
-    : 'We answer ' + hoursConfig.label + '.';
+    ? 'Tap to call. ' + answererName + ' answers ' + hoursConfig.label + '.'
+    : answererName + ' answers ' + hoursConfig.label + '.';
   if (!open) {
-    closed.innerHTML = `Our line opens at ${fmtHour(hoursConfig.open)} Eastern. Call us then at <strong>${esc(phoneConfig.display)}</strong>.`;
+    closed.innerHTML = `${esc(answererName)}'s line opens at ${fmtHour(hoursConfig.open)} Eastern. Call ${esc(answererName)} then at <strong>${esc(phoneConfig.display)}</strong>.`;
     track('CallOutsideHours', { location: gate.origin });
   }
 }

@@ -58,7 +58,11 @@ button.btn{cursor:pointer;font-family:inherit}
 .pill{display:inline-block;align-self:flex-start;background:var(--gold);color:var(--dark);font-weight:800;font-size:13px;letter-spacing:.08em;
   text-transform:uppercase;padding:8px 14px 7px;border-radius:9px}
 .pill--quiet{background:#2A332E;color:#C8D2CC}
-.cut{margin-top:18px;font-size:18px;font-weight:700;color:var(--gold-2)}
+/* old price crossed out, then the cut, then the new price; $999,000 never shows without the line */
+.cut{margin-top:18px;display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 14px;font-size:18px;font-weight:700;color:var(--gold-2)}
+.was{font-size:clamp(28px,7.6vw,38px);font-weight:700;letter-spacing:-.03em;line-height:1.1;color:#9DA9A2;font-variant-numeric:tabular-nums}
+.was s{text-decoration:line-through;text-decoration-thickness:.085em;text-decoration-color:var(--gold-2)}
+.vh{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 .price{margin-top:2px;font-size:clamp(56px,16vw,96px);font-weight:800;letter-spacing:-.045em;line-height:.98}
 .addr{margin-top:10px;font-size:16px;font-weight:600;color:#C8D2CC}
 .addr b{font-size:17px;font-weight:800;color:#fff;letter-spacing:-.01em}
@@ -107,6 +111,7 @@ button.btn{cursor:pointer;font-family:inherit}
 /* ---------- visit + broker ---------- */
 .dates--center{max-width:420px;margin-left:auto;margin-right:auto}
 .addr--center{margin-top:16px}
+.who{margin-top:10px;font-size:17px;color:#C8D2CC}
 .broker{margin-top:40px;padding-top:28px;border-top:1px solid rgba(255,255,255,.16)}
 .broker__brand{font-size:clamp(19px,4.6vw,23px);font-weight:700;letter-spacing:-.02em}
 /* NJ: brokerage phone as large as the page's predominant wording */
@@ -188,5 +193,5 @@ button.btn{cursor:pointer;font-family:inherit}
   .sticky__more{display:inline}
   .sticky .btn--rsvp{box-shadow:0 18px 40px -16px rgba(191,79,10,.9)}
 }
-@media (max-width:359px){.dates li{padding:12px 14px}.dates b,.dates span{font-size:16px}.dates span{white-space:nowrap}}
+@media (max-width:359px){.sticky__now{display:none}.dates li{padding:12px 14px}.dates b,.dates span{font-size:16px}.dates span{white-space:nowrap}}
 @media (prefers-reduced-motion:reduce){*{transition:none !important;animation:none !important}}

@@ -8,8 +8,18 @@
 /* darker secondary grey: #7C868E failed WCAG AA on the paper background */
 .ny{--ink-3:#5B656D}
 
-/* the play button and its label sit over the house, not over Imbar's face */
-.ny .hero .vcover__inner{justify-content:flex-start;padding-top:24%}
+/* hero cover: the poster's price headline fills roughly 16% to 34% of the frame,
+   so the play button and its label sit lower, over the room photo, and the cover
+   line stays pinned to the bottom. The empty ::before is a spacer that holds the
+   button at about 46% down and gives way first if the cover line needs the room. */
+.ny .hero .vcover__inner{justify-content:flex-start;gap:0;padding:0 18px 26px}
+.ny .hero .vcover__inner::before{content:"";flex:0 1 46%;min-height:0}
+.ny .hero .vcover__play,.ny .hero .vcover__sound{flex-shrink:0}
+.ny .hero .vcover__sound{margin-top:18px}
+.ny .hero .vcover__line{
+  position:relative;left:auto;right:auto;bottom:auto;
+  flex-shrink:0;align-self:stretch;margin:auto 0 0;padding-top:18px
+}
 
 /* no one-word last lines */
 .ny p,.ny li,.ny dt,.ny .broker__brand{text-wrap:pretty}
@@ -24,6 +34,29 @@
   font-size:15px;font-weight:500;letter-spacing:.005em
 }
 .hero__price strong{color:#fff;font-weight:700;font-size:17px;letter-spacing:-.01em}
+
+/* ---------- price cut: old price struck through, new price prominent ---------- */
+s.was{
+  text-decoration:line-through;text-decoration-thickness:2px;text-decoration-color:currentColor;
+  font-weight:600;opacity:.72;white-space:nowrap
+}
+.ny .vcover__line s.was{font-size:.72em;margin-right:.18em;opacity:.8;text-decoration-thickness:3px}
+.ny .vcover__line strong.now{font-weight:800;white-space:nowrap}
+.hero__price s.was{color:rgba(255,255,255,.7);font-size:15px;margin-right:4px}
+.priceband__price dd s.was{display:block;font-size:.62em;color:var(--ink-3);letter-spacing:-.01em}
+.priceband__price dd .now{display:block;color:var(--accent-2)}
+.priceband dd.priceband__cut{
+  align-self:flex-start;margin-top:6px;padding:4px 10px;border-radius:999px;
+  background:#E1EFE8;color:var(--accent-2);font-size:13px;font-weight:700;letter-spacing:.01em
+}
+.cmp__s s.was{opacity:1;font-weight:600;font-size:1em;margin-right:0}
+/* the price row's note carries the struck old price, so it reads at 13px, not 11.5px */
+.cmp tr.is-key .cmp__s{font-size:13px}
+
+/* ---------- the work done ---------- */
+.work__h{margin-top:34px;font-size:19px;font-weight:700;letter-spacing:-.015em}
+.ticks.work{margin-top:14px}
+.ticks.work li{color:var(--ink);font-weight:600}
 
 /* ---------- price band ---------- */
 .priceband{

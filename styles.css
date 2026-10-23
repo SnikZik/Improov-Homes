@@ -75,6 +75,16 @@ ul{padding:0;list-style:none}
 .center .lede{margin-left:auto;margin-right:auto}
 .role{margin-top:6px;font-size:15px;font-weight:600;letter-spacing:.01em;color:var(--ink-3)}
 .disclosure{margin-top:26px;font-size:12.5px;line-height:1.55;color:var(--ink-3);max-width:70ch}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}
+
+/* ---------- price cut: the old price struck through, then the new one ----------
+   Client rule: $999,000 never appears without the strikethrough. */
+s.was{
+  color:var(--ink-3);font-weight:600;font-size:.62em;letter-spacing:-.015em;white-space:nowrap;
+  text-decoration:line-through;text-decoration-thickness:max(2px,.09em);text-decoration-color:currentColor;
+  margin-right:.1em
+}
+.now{white-space:nowrap}
 
 /* ---------- buttons ---------- */
 .btn{
@@ -151,6 +161,9 @@ ul{padding:0;list-style:none}
   max-width:17ch;text-shadow:0 2px 24px rgba(0,0,0,.55);
 }
 .vcover--sm .vcover__inner{gap:14px}
+.vcover__cut{display:block;font-size:.5em;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.vcover__price{display:block;margin-top:4px;font-size:1.45em;line-height:1.02}
+.vcover s.was{color:rgba(255,255,255,.8)}
 
 /* hero: play badge centred, headline at the bottom of the frame, clear of Imbar */
 .hero .vcover__inner{position:absolute;inset:0;justify-content:center;gap:18px}
@@ -230,6 +243,8 @@ ul{padding:0;list-style:none}
 .facts dt{font-size:13px;font-weight:500;color:var(--ink-3)}
 .facts dd{margin:0;font-size:clamp(22px,5.6vw,28px);font-weight:700;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
 .facts dd small{font-size:.55em;font-weight:600;color:var(--ink-3);margin-left:2px}
+.facts dd s.was{font-size:.74em}
+.facts .facts__cut{font-size:13px;font-weight:600;letter-spacing:0;color:var(--accent)}
 .facts__note{margin-top:14px;font-size:15px;line-height:1.5;color:var(--ink-2);max-width:62ch}
 @media (min-width:900px){
   .facts{grid-template-columns:repeat(3,1fr)}
@@ -245,6 +260,9 @@ ul{padding:0;list-style:none}
   transform:rotate(-45deg) translateY(-2px)
 }
 .ticks--row{display:flex;flex-wrap:wrap;gap:12px 26px}
+.subhead{margin-top:40px;font-size:clamp(20px,4.8vw,24px);font-weight:700;line-height:1.2;letter-spacing:-.02em}
+.subhead + .ticks{margin-top:16px}
+@media (min-width:700px){.ticks--cols{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:32px;max-width:640px}}
 
 .specs{margin-top:34px;display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
 .specs li{background:var(--paper);padding:20px 18px;display:flex;flex-direction:column;gap:2px}

@@ -14,7 +14,9 @@ Live URL once pushed: `https://snikzik.github.io/Improov-Homes/ny/`
 | `officeConfig` | Brokerage office number, shown as text (NJ display rule), never a tap target, so it does not bypass the qualifier. |
 | `hoursConfig` | Call hours, Eastern. Outside them the qualifier shows the number and the opening time instead of a tap-to-call button. `enforce:false` turns this off. |
 | `gateConfig` | Which "no" answers stop the call. Only the New Jersey question does. The rental-income question is informational: blocking it would screen out buyers who want the whole house for their own household, a fair-housing risk. |
-| `subject` | The house. List price $899,000 (cut from $999,000 in Oct 2026). Verified against GSMLS #4057212 and the 2025 tax bill on 15 Oct 2026. |
+| `subject` | The house. List price $899,000, cut from $999,000 in Oct 2026 (`oldPrice`). The old price is shown only struck through (`<s>`): hero line, price band, comparison table note. The page never prints $999,000 on its own. Verified against GSMLS #4057212 and the 2025 tax bill on 15 Oct 2026. |
+| `workDone` | The work done, in the client's words: New roof. New central air. New kitchens in both units. Updated baths. Refinished wood floors. Shown under The property. |
+| `answererName` | Roi. He answers every call on this line, so the popup's last button reads "Call Roi" plus the number and the team section says Roi answers this line for Improov Homes. No title for Roi. The broker lines ("Improov Homes, Licensed Real Estate Broker", Imbar Meidani as Principal Broker) stay as they are. |
 | `loanExample.apr` | **Reg Z switch.** Empty = the page shows prices only and no financing numbers. Paste the lender's APR and the down payment, cash to close, monthly payment and income rows come back with the full disclosure. Preview the financing version with `?preview_financing=1`. |
 | `comparisonConfig` | The comps. Only 144-11 223rd St, Laurelton is in. 203 Essex St is out (its deed also bought the vacant lot next door) and 185 Bennett Ave, Yonkers is out (3 units, 3,785 sq ft). |
 | `commuteConfig` | Only verified figures (NJ Transit timetables). |

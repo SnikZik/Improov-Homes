@@ -106,10 +106,12 @@ function wireContacts() {
   const sub = gate.querySelector('[data-call-sub]');
   const phoneText = gate.querySelectorAll('[data-phone-text]');
   let origin = 'unknown', answer = null, armedAt = 0, lastFocus = null;
+  // Roi answers the campaign line, so the last step names him
+  const WHO = 'Roi answers this line for Improov Homes. ';
   const SUB = {
-    buy: 'Ask about the $899,000 price and the open house this weekend.',
-    buyAfter: 'Ask about the $899,000 price and a private showing.',
-    rto: 'Ask for the written rent-to-own terms for the first-floor unit and lower level.'
+    buy: WHO + 'Ask about the $899,000 price and the open house this weekend.',
+    buyAfter: WHO + 'Ask about the $899,000 price and a private showing.',
+    rto: WHO + 'Ask for the written rent-to-own terms for the first-floor unit and lower level.'
   };
   const show = step => {
     armedAt = Date.now() + 400;                 // a double tap must not skip the question
@@ -243,7 +245,7 @@ function wireVideo() {
 }
 
 /* hero loop: silent, plays only while on screen, and stays on the poster for reduced motion */
-/* RSVP: two big buttons (Saturday / Sunday), then Imbar's open house form from GHL with
+/* RSVP: two big buttons (Saturday / Sunday), then the Improov open house form from GHL with
    the chosen day in a hidden field. GHL emails Roi, Imbar and Snir on every submission and
    sends the visitor to thanks.html, which offers the calendar links and fires RSVPBooked.
    The form and GHL's resize script load only once a day is picked. */

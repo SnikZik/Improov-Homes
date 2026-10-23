@@ -23,6 +23,7 @@ const officeConfig = {
    listings (fact-check run 15 Oct 2026). */
 const propertyConfig = {
   price: 899000,                // after the $100,000 price cut, Oct 2026
+  oldPrice: 999000,             // shown only inside <s>, struck through (client rule: never without the strikethrough)
   taxes: 11892                  // 2025 bill. The $14,144 on Roee's sheet was the 2023 bill
 };
 
@@ -292,8 +293,8 @@ function wirePhone() {
   const tel = gate.querySelector('[data-gate-tel]');
   const sub = gate.querySelector('[data-call-sub]');
   const SUB = {
-    buy: 'Ask about the price and a private showing.',
-    rto: 'Ask for the written rent-to-own terms for the first-floor unit and lower level.'
+    buy: 'Roi answers. Ask about the price and a private showing.',
+    rto: 'Roi answers. Ask for the written rent-to-own terms for the first-floor unit and lower level.'
   };
   let origin = 'unknown', interest = null, armedAt = 0, lastFocus = null;
 
@@ -396,6 +397,8 @@ function renderCards() {
 
   const facts = {
     price: money(propertyConfig.price),
+    oldPrice: money(propertyConfig.oldPrice),
+    priceCut: money(propertyConfig.oldPrice - propertyConfig.price),
     taxes: money(propertyConfig.taxes),
     rent: money(rentConfig.amount)
   };
@@ -436,7 +439,7 @@ function renderCards() {
           <p class="card__net-sub">per month, estimated</p>
         </div>
         <p class="card__loan">${loanExampleText(s)}</p>
-        <a class="btn btn--call" href="#" data-call data-loc="card-${s.id}">Call Imbar</a>
+        <a class="btn btn--call" href="#" data-call data-loc="card-${s.id}">Call Roi</a>
       </article>`;
     }).join('');
   }
