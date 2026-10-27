@@ -86,7 +86,8 @@ function wireContacts() {
   const phoneText = gate.querySelectorAll('[data-phone-text]');
   let origin = 'unknown', answer = null, armedAt = 0, lastFocus = null;
   const SUB = {
-    rto: 'Ask for the written rent-to-own terms for the first-floor unit and the lower level.',
+    rent: 'Ask about renting the second unit: 3 bedrooms, 2 baths, $2,800 a month.',
+    rto: 'Ask for the written rent-to-own terms for either unit.',
     buy: 'Ask about buying at the reduced $899,000 price.'
   };
   const show = step => {

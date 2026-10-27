@@ -68,8 +68,8 @@ body{padding-bottom:0}
 
     <!-- no day remembered (private browsing): both days -->
     <div class="thx__both" data-thx-both hidden>
-      <div><p>Saturday, Oct 24, 12 to 3 PM</p><div class="thx__cal" data-both="sat"></div></div>
-      <div><p>Sunday, Oct 25, 1 to 3 PM</p><div class="thx__cal" data-both="sun"></div></div>
+      <div><p>Saturday, Oct 31, 12 to 2 PM</p><div class="thx__cal" data-both="sat"></div></div>
+      <div><p>Sunday, Nov 1, 1 to 3 PM</p><div class="thx__cal" data-both="sun"></div></div>
     </div>
 
     <p class="thx__ask">Questions before you come? <a href="./#call" data-ask="call">Call Roi</a></p>
@@ -95,10 +95,10 @@ body{padding-bottom:0}
    popup (sessionStorage "oh_day"). Calendar links for each day are below.
    ============================================================ */
 const DAYS = {
-  sat: { title: 'See you Saturday, Oct 24', when: '12 to 3 PM at 1057 Bond St, Elizabeth, NJ 07201',
-         ics: 'open-house-sat.ics', start: '20261024T120000', end: '20261024T150000', label: 'Saturday, Oct 24, 12 to 3 PM' },
-  sun: { title: 'See you Sunday, Oct 25', when: '1 to 3 PM at 1057 Bond St, Elizabeth, NJ 07201',
-         ics: 'open-house-sun.ics', start: '20261025T130000', end: '20261025T150000', label: 'Sunday, Oct 25, 1 to 3 PM' }
+  sat: { title: 'See you Saturday, Oct 31', when: '12 to 2 PM at 1057 Bond St, Elizabeth, NJ 07201',
+         ics: 'open-house-sat.ics', start: '20261031T120000', end: '20261031T140000', label: 'Saturday, Oct 31, 12 to 2 PM' },
+  sun: { title: 'See you Sunday, Nov 1', when: '1 to 3 PM at 1057 Bond St, Elizabeth, NJ 07201',
+         ics: 'open-house-sun.ics', start: '20261101T130000', end: '20261101T150000', label: 'Sunday, Nov 1, 1 to 3 PM' }
 };
 const PAGE_ID = 'bond-street-1057-open-house';
 const OH_URL = 'https://snikzik.github.io/Improov-Homes/open-house/';

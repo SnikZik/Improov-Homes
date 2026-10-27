@@ -15,20 +15,20 @@ const phoneConfig = {
    After the last one ends the page switches itself: dates and "RSVP & add to
    calendar" go away and it asks for a private showing instead. */
 const openHouse = {
-  endsAt: '2026-10-25T15:00:00-04:00',
+  endsAt: '2026-11-01T15:00:00-05:00',   // 1 Nov: US clocks fall back at 2 AM, so EST
   // the RSVP popup offers only these two; a day drops out once it is over.
   // "value" is what lands in the GHL form (hidden field open_house_day).
   days: {
-    sat: { title: 'Saturday, Oct 24, 12 to 3 PM', value: 'Saturday Oct 24, 12 to 3 PM', endsAt: '2026-10-24T15:00:00-04:00' },
-    sun: { title: 'Sunday, Oct 25, 1 to 3 PM', value: 'Sunday Oct 25, 1 to 3 PM', endsAt: '2026-10-25T15:00:00-04:00' }
+    sat: { title: 'Saturday, Oct 31, 12 to 2 PM', value: 'Saturday Oct 31, 12 to 2 PM', endsAt: '2026-10-31T14:00:00-04:00' },
+    sun: { title: 'Sunday, Nov 1, 1 to 3 PM', value: 'Sunday Nov 1, 1 to 3 PM', endsAt: '2026-11-01T15:00:00-05:00' }
   }
 };
 
 /* ---------- 3. LEAD VIDEO (voiced, plays with sound after a tap) ----------
-   Before the open house ends: the open house video (it says the dates).
-   After: the sale video (new price, no dates), so the page never plays old dates. */
+   27 Oct: the open house moved to Sat 31 Oct 12 to 2 and Sun 1 Nov 1 to 3. The open house video
+   says "Saturday 12 to 3", so both before and after play the sale video (new price, no dates). */
 const leadVideo = {
-  before: { src: 'media/lead.mp4', poster: 'img/lead-poster.jpg', name: 'oh-lead' },
+  before: { src: '../videos/web/lead-899.mp4', poster: '../videos/web/lead-899-poster.jpg', name: 'lead-899' },
   after: { src: '../videos/web/lead-899.mp4', poster: '../videos/web/lead-899-poster.jpg', name: 'lead-899' }
 };
 
@@ -39,7 +39,7 @@ const PAGE_ID = 'bond-street-1057-open-house';
 /* ============================================================
    TRACKING
      LandingPageView, ScrollDepth, SectionView,
-     CallQuestionOpen, CallQuestionAnswer (open_to_nj yes | no, then interest buy | rto), CallBlocked (not open to NJ),
+     CallQuestionOpen, CallQuestionAnswer (open_to_nj yes | no, then interest buy | rent | rto), CallBlocked (not open to NJ),
      CallButtonClick (+ Meta 'Lead', lead_type call, with the answer),
      RSVPOpen, RSVPDay (day: sat | sun), RSVPBooked (+ Meta 'Lead', lead_type rsvp, fired on thanks.html), VideoPlay, VideoProgress, VideoComplete
    Meta pixel 309890672012145: the campaign optimizes for the standard 'Lead' event.
@@ -99,7 +99,7 @@ const lead = (type, params) => {
 function wireContacts() {
   const base = () => ({ phone: phoneConfig.raw, seconds_on_page: Math.round((Date.now() - session.startedAt) / 1000), max_scroll: session.maxScroll });
 
-  // every call button asks two questions first (New Jersey, then buy or rent to own); the
+  // every call button asks two questions first (New Jersey, then buy, rent or rent to own); the
   // tap-to-call is inside the popup. "No" to New Jersey ends there, as on the NY page.
   const gate = document.getElementById('callGate');
   const tel = gate.querySelector('[data-gate-tel]');
@@ -111,7 +111,8 @@ function wireContacts() {
   const SUB = {
     buy: WHO + 'Ask about the $899,000 price and the open house this weekend.',
     buyAfter: WHO + 'Ask about the $899,000 price and a private showing.',
-    rto: WHO + 'Ask for the written rent-to-own terms for the first-floor unit and lower level.'
+    rent: WHO + 'Ask about renting the second unit: 3 bedrooms, 2 baths, $2,800 a month.',
+    rto: WHO + 'Ask for the written rent-to-own terms for either unit.'
   };
   const show = step => {
     armedAt = Date.now() + 400;                 // a double tap must not skip the question
