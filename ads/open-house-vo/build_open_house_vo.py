@@ -31,7 +31,7 @@ HERE = pathlib.Path(__file__).resolve().parent
 ARGS = [a for a in sys.argv[1:] if not a.startswith('--')]
 VARIANT = 'b' if '--reel-b' in sys.argv else 'vo'
 VO = pathlib.Path(ARGS[0]).resolve() if ARGS else ROOT / 'ads/vo-899k/vo-openhouse-ad-gia.wav'
-WALK = pathlib.Path('/Users/s/Downloads/WhatsApp Video 2026-10-21 at 16.22.19.mp4')
+WALK = pathlib.Path(os.environ.get('OH_WALK', '/Users/s/Downloads/WhatsApp Video 2026-10-21 at 16.22.19.mp4'))
 WORK = pathlib.Path(os.environ.get('OH_WORK', pathlib.Path(tempfile.gettempdir()) / 'bond-oh')) / f'ohvo-{VARIANT}'
 FINAL = (ROOT / 'ads/open-house/open-house_reel-9x16_gia.mp4') if VARIANT == 'b' else HERE / 'open-house-vo_reel-9x16.mp4'
 WORD_FILES = [ROOT / 'ads/vo-899k/words.json', *sorted(HERE.glob('words-*.json'))]
@@ -51,7 +51,7 @@ TAIL = 1.2            # hold after the voice ends
 LUFS = -16.0
 
 SMALL = '<span style="font-size:60px">{}</span>'
-T_INTRO = ('Open house in<br>Elizabeth, New Jersey', 'Sat, Oct 24 and Sun, Oct 25')
+T_INTRO = ('Open house in<br>Elizabeth, New Jersey', 'Sat 10/31, 12 to 2 · Sun 11/1, 1 to 3')   # moved 27 Oct
 T_PRICE = (oh.WAS_NOW, oh.CFG['cut'])                       # <s>$999,000</s> $899,000
 T_WORK = ('Renovated in 2026', oh.CFG['work'])              # the client's five items, in her words
 T_TRAIN = ('About 33 min by train<br>to NY Penn Station', 'Elizabeth, NJ station is 0.6 mi away')
@@ -67,7 +67,6 @@ SCENES = {
         ([('WALK', 6.0, 0.40, None)], T_PRICE),    # porch and front door
         ([('WALK', 86.2, 0.50, None)], T_WORK),    # kitchen
         ([('WALK', 78.7, 0.50, None)], T_TRAIN),   # living room, wood floors
-        ([('WALK', 98.6, 0.50, None)], T_DAYS),    # main level bedroom
     ],
     'b': [                                    # the silent reel's footage
         # intro (6.3 s) in two shots under one headline: pays-for-itself alone would run past 9.2 s
@@ -78,10 +77,11 @@ SCENES = {
         ([('WALK', 0.0, 0.25, None)], T_PRICE),
         ([('WALK', 86.2, 0.50, None)], T_WORK),
         ([('ads/C3_separate-everything.mp4', 6.8, None, None)], T_TRAIN),   # porch to garage, after the intro's part of C3
-        ([('WALK', 78.7, 0.50, None)], T_DAYS),
     ],
 }[VARIANT]
-ANCHORS = ['price', 'new', 'about', 'saturday', 'call']   # first word of sentences 2 to 5 and the end card
+# 27 Oct: the open house moved to Sat 12 to 2. The voice said "Saturday 12 to 3", so that sentence is cut
+# out of the take (vo-openhouse-ad-gia-nodates.wav) and the times live on screen (intro and end card).
+ANCHORS = ['price', 'new', 'about', 'call']   # first word of sentences 2 to 4 and the end card
 BAD = re.compile(r'[—–]|--')
 
 
@@ -188,8 +188,8 @@ def build():
     vo_len = duration(vo)
     total = vo_len + TAIL
     c = sentence_cuts(words_for(VO), silences(vo))
-    starts = [0.0] + c[:4]
-    end_start = c[4]
+    starts = [0.0] + c[:-1]
+    end_start = c[-1]
     print('cuts at', [round(x, 2) for x in starts + [end_start]], 'voice', round(vo_len, 2), 'total', round(total, 2))
 
     # 2. overlays

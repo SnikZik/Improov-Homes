@@ -29,9 +29,9 @@ CFG = {
     'was': '$999,000',                     # old price: only ever shown inside <s>
     'cut': 'Price reduced $100,000',
     'work': 'New roof. New central air. New kitchens in both units. Updated baths. Refinished wood floors.',
-    'dates': [('Sat, Oct 24', '12 to 3 PM'), ('Sun, Oct 25', '1 to 3 PM')],
-    'chip': 'Sat 10/24 · Sun 10/25',
-    'rto': 'Not ready to buy? Rent to own at $4,500 a month.',
+    'dates': [('Sat, Oct 31', '12 to 2 PM'), ('Sun, Nov 1', '1 to 3 PM')],   # moved 27 Oct (client)
+    'chip': 'Sat 10/31 · Sun 11/1',
+    'rto': 'Also for rent: 3 bed, 2 bath, $2,800 a month.',                      # second unit, 27 Oct
 }
 
 W, H = 1080, 1920
@@ -122,7 +122,7 @@ body{{background:rgba(15,21,18,.9)}}
 .k{{align-self:flex-start;background:#C9A24E;color:#0F1512;font-weight:800;font-size:36px;letter-spacing:.08em;
   text-transform:uppercase;padding:14px 24px 12px;border-radius:10px}}
 .cut{{margin-top:34px;font-size:40px;font-weight:700;color:#E6C77E;letter-spacing:-.01em}}
-.price{{margin-top:6px;font-size:150px;font-weight:800;letter-spacing:-.045em;line-height:.95;white-space:nowrap}}
+.price{{margin-top:6px;font-size:132px;font-weight:800;letter-spacing:-.045em;line-height:.95;white-space:nowrap}}
 .price s.was{{font-size:.42em;color:#C8D2CC;margin-right:.16em;vertical-align:.32em}}
 .dates{{margin-top:34px;display:grid;gap:10px}}
 .d{{font-size:50px;font-weight:600;letter-spacing:-.02em;color:#C8D2CC}}
