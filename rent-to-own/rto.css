@@ -200,3 +200,8 @@ a[x-apple-data-detectors]{color:inherit !important;text-decoration:none !importa
 }
 @media (max-width:359px){.levels li{padding:11px 14px}.levels span{font-size:16.5px}}
 @media (prefers-reduced-motion:reduce){*{transition:none !important;animation:none !important}}
+
+/* open house strip, added 27 Oct (removed by script after Sun 1 Nov 3 PM) */
+.ohstrip{margin-top:16px;display:inline-block;padding:10px 16px 11px;border-radius:12px;border:1.5px solid var(--gold);color:#fff;font-size:16px;font-weight:600;line-height:1.5}
+.ohstrip b{font-weight:800;white-space:nowrap}
+.ohstrip--light{color:var(--ink);border-color:var(--gold);background:#fff}

@@ -46,6 +46,7 @@ src="https://www.facebook.com/tr?id=309890672012145&ev=PageView&noscript=1"
     <p class="pill">For rent or rent to own</p>
     <h1 class="price"><small>From</small> $2,800<small>a month</small></h1>
     <p class="addr"><b>1057 Bond St, Elizabeth, New Jersey</b><br>Two units, renovated in 2026</p>
+    <p class="ohstrip" data-oh-end="2026-11-01T15:00:00-05:00">Open house: <b>Sat 10/31, 12 to 2 PM</b> &middot; <b>Sun 11/1, 1 to 3 PM</b></p>
 
     <ul class="levels">
       <li><b>Second unit · $2,800 a month</b><span>3 bedrooms, 2 baths. Rent or rent to own</span></li>
@@ -93,6 +94,7 @@ src="https://www.facebook.com/tr?id=309890672012145&ev=PageView&noscript=1"
     <p class="eyebrow">For rent or rent to own</p>
     <h2 class="h2">The second unit: 3 bedrooms, 2 baths.</h2>
     <p class="lede"><b>$2,800 a month.</b> Rent it, or rent it with an option to buy.</p>
+    <p class="ohstrip ohstrip--light" data-oh-end="2026-11-01T15:00:00-05:00">Open house: <b>Sat 10/31, 12 to 2 PM</b> &middot; <b>Sun 11/1, 1 to 3 PM</b></p>
     <p class="fine">Subject to application approval.</p>
     <a class="btn btn--call" href="#call" data-call data-loc="unit2"><span>Call Roi</span></a>
   </div>
@@ -252,5 +254,6 @@ src="https://www.facebook.com/tr?id=309890672012145&ev=PageView&noscript=1"
 </div>
 
 <script src="rto.js"></script>
+<script>/* open house strips remove themselves after Sun 1 Nov, 3 PM New York */(function(){var n=Date.now();document.querySelectorAll("[data-oh-end]").forEach(function(e){if(n>Date.parse(e.getAttribute("data-oh-end")))e.remove();});})();</script>
 </body>
 </html>
